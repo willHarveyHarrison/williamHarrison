@@ -32,24 +32,20 @@
     $('#button2').click(function() {
 
         $.ajax({
-            url: "libs/php/icao.php",
+            url: "libs/php/timezone.php",
             type: 'GET',
             dataType: 'json',
             data: {
-                country: $('#airportCode').val(),
+                lat: $('#lat').val(),
+                lng: $('#lng').val(),
             },
             success: function(result) {
                 console.log(JSON.stringify(result));
                 if (result.status.name === "ok") {
-                    $('#clouds').html(result['data']['clouds']);
-                    $('#humidity').html(result['data']['humidity']);
-                    $('#windSpeed').html(result['data']['windSpeed']);
-                    $('#windDirection').html(result['data']['windDirection']);
+                    $('#timezone').html(result['data']['time']);
                 } else {
-                    $('#clouds').html('Error: ' + result.status.description);
-                    $('#humidity').html('Error: ' + result.status.description);
-                    $('#windSpeed').html('Error: ' + result.status.description);
-                    $('#windDirection').html('Error: ' + result.status.description);
+                    $('#timezone').html('Error: ' + result.status.description);
+
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
