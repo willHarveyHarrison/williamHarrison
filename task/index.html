@@ -38,7 +38,7 @@
         </table>
     </div>
 	<!-- end of airport weather bit-->
-	<div>
+
 	<!-- start of timezone bit-->
     <select id="lat">
 		<option value="10">10</option>
@@ -68,8 +68,41 @@
             </tr>
         </table>
     </div>
-	<!-- end of airport weather bit-->
-	</div>
+	<!-- end of timezone bit-->
+
+
+	<!-- start of timezone bit-->
+    <div>North</div>
+    <input id="north"></input>
+	<div>South</div>
+    <input id="south"></input>
+    <div>East</div>
+    <input id="east"></input>
+	<div>West</div>
+    <input id="west"></input>
+    <br>
+    <button id="button3">Run</button>
+    <br><br>
+    <div class="results3" >
+        <table id="earthquakeTable" border="1">
+            <thead>
+                <tr>
+                    <th>Datetime</th>
+                    <th>Depth</th>
+                    <th>Longitude</th>
+                    <th>Source</th>
+                    <th>EQID</th>
+                    <th>Magnitude</th>
+                    <th>Latitude</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+	<!-- end of timezone bit-->
+
     <script type="application/javascript" src="libs/js/jquery-3.7.1.min.js"></script>
     <script type="application/javascript" src="libs/js/script.js"></script>
 </body>

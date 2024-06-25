@@ -1,3 +1,4 @@
+//airport weather
     $('#button1').click(function() {
 
         $.ajax({
@@ -28,7 +29,7 @@
         });
 
     });
-
+//timezones
     $('#button2').click(function() {
 
         $.ajax({
@@ -57,4 +58,48 @@
         });
 
     });
+//earthquake
+    $('#button3').click(function() {
+
+        $.ajax({
+            url: "libs/php/earthquakes.php",
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                north: $('#north').val(),
+                south: $('#south').val(),
+                east: $('#east').val(),
+                west: $('#west').val(),
+            },
+            success: function(result) {
+                console.log(JSON.stringify(result));
+                if (result.status.name === "ok") {
+                    const earthquakes = result.data.earthquakes;
+                    let tableBody = $('#earthquakeTable tbody');
+                    tableBody.empty(); // Clear any existing rows
+
+                    earthquakes.forEach(earthquake => {
+                        let row = `<tr>
+                            <td>${earthquake.datetime}</td>
+                            <td>${earthquake.depth}</td>
+                            <td>${earthquake.lng}</td>
+                            <td>${earthquake.src}</td>
+                            <td>${earthquake.eqid}</td>
+                            <td>${earthquake.magnitude}</td>
+                            <td>${earthquake.lat}</td>
+                        </tr>`;
+                        tableBody.append(row);
+                    });
+                } else {
+                    alert('Error: ' + result.status.description);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("Error fetching data: ", textStatus, errorThrown);
+                $('#magnitude').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
+            }
+        });
+
+    });
+
 
