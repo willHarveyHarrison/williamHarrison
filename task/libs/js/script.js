@@ -42,8 +42,10 @@
             success: function(result) {
                 console.log(JSON.stringify(result));
                 if (result.status.name === "ok") {
+                    $('#timezoneCountry').html(result['data']['timezoneId']);
                     $('#timezone').html(result['data']['time']);
                 } else {
+                    $('#timezoneCountry').html('Error: ' + result.status.description);
                     $('#timezone').html('Error: ' + result.status.description);
 
                 }
