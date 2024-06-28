@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>API Demonstration</title>
+    <meta name="description" content="3 test apis">
+    <meta name="author" content="Will H">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>API Name</th>
+                <th>API Description</th>
+                <th>Submit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Airport Weather API -->
+            <tr>
+                <td>Airport Weather</td>
+                <td>
+                    <p>This api returns the weather of an airport given the ICAO code</p>
+                    Airport: <select id="airportCode">
+                        <option value="LSZH">Zurich airport (LSZH)</option>
+                        <option value="EGKK">London Gatwick (EGKK)</option>
+                        <option value="EGCC">Manchester (EGCC)</option>
+                        <option value="LTFM">Istanbul airport (LTFM)</option>
+                        <option value="ZBAA">Beijing International airport (ZBAA)</option>
+                    </select>
+                </td>
+                <td><button id="button1">Submit</button></td>
+            </tr>
+            <!-- Timezone API -->
+            <tr>
+                <td>Timezone</td>
+                <td>
+                    <p> This api returns the timezone and country name given its latatude and longitude</p>
+                    Latitude: <select id="lat">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                    </select>
+                    Longitude: <select id="lng">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                    </select>
+                </td>
+                <td><button id="button2">Submit</button></td>
+            </tr>
+            <!-- Earthquake API -->
+            <tr>
+                <td>Earthquake</td>
+                <td>
+                    <p> This api returns Earthquake details withing a given bounding box </p>
+                    North: <input id="north" type="text">
+                    South: <input id="south" type="text">
+                    East: <input id="east" type="text">
+                    West: <input id="west" type="text">
+                </td>
+                <td><button id="button3">Submit</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="results">
+        <h2>Results</h2>
+        <div id="result1"></div>
+        <div id="result2"></div>
+        <div id="result3"></div>
+    </div>
+
+    <script type="application/javascript" src="libs/js/jquery-3.7.1.min.js"></script>
+    <script type="application/javascript" src="libs/js/script.js"></script>
+</body>
+</html>
