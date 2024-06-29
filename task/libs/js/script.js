@@ -1,6 +1,14 @@
-//airport weather
-    $('#button1').click(function() {
+$(window).on('load', function () {
+    if ($('#preloader').length) {
+    $('#preloader').delay(1000).fadeOut('slow', function () {
+    $(this).remove();
+    });
+    }
+    });
+    
 
+$(document).ready(function() {
+    $('#button1').click(function() {
         $.ajax({
             url: "libs/php/icao.php",
             type: 'GET',
@@ -9,29 +17,26 @@
                 airportCode: $('#airportCode').val(),
             },
             success: function(result) {
-                console.log(JSON.stringify(result));
                 if (result.status.name === "ok") {
-                    $('#clouds').html(result['data']['clouds']);
-                    $('#humidity').html(result['data']['humidity']);
-                    $('#windSpeed').html(result['data']['windSpeed']);
-                    $('#windDirection').html(result['data']['windDirection']);
+                    $('#result1').html(
+                        `<table>
+                            <tr><td>Clouds:</td><td>${result.data.clouds}</td></tr>
+                            <tr><td>Humidity:</td><td>${result.data.humidity}</td></tr>
+                            <tr><td>Wind Speed:</td><td>${result.data.windSpeed}</td></tr>
+                            <tr><td>Wind Direction:</td><td>${result.data.windDirection}</td></tr>
+                        </table>`
+                    );
                 } else {
-                    $('#clouds').html('Error: ' + result.status.description);
-                    $('#humidity').html('Error: ' + result.status.description);
-                    $('#windSpeed').html('Error: ' + result.status.description);
-                    $('#windDirection').html('Error: ' + result.status.description);
+                    $('#result1').html('Error: ' + result.status.description);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error fetching data: ", textStatus, errorThrown);
-                $('#clouds').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
+                $('#result1').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
             }
         });
-
     });
-//timezones
-    $('#button2').click(function() {
 
+    $('#button2').click(function() {
         $.ajax({
             url: "libs/php/timezone.php",
             type: 'GET',
@@ -41,26 +46,24 @@
                 lng: $('#lng').val(),
             },
             success: function(result) {
-                console.log(JSON.stringify(result));
                 if (result.status.name === "ok") {
-                    $('#timezoneCountry').html(result['data']['timezoneId']);
-                    $('#timezone').html(result['data']['time']);
+                    $('#result2').html(
+                        `<table>
+                            <tr><td>Country:</td><td>${result.data.timezoneId}</td></tr>
+                            <tr><td>Timezone:</td><td>${result.data.time}</td></tr>
+                        </table>`
+                    );
                 } else {
-                    $('#timezoneCountry').html('Error: ' + result.status.description);
-                    $('#timezone').html('Error: ' + result.status.description);
-
+                    $('#result2').html('Error: ' + result.status.description);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error fetching data: ", textStatus, errorThrown);
-                $('#clouds').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
+                $('#result2').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
             }
         });
-
     });
-//earthquake
-    $('#button3').click(function() {
 
+    $('#button3').click(function() {
         $.ajax({
             url: "libs/php/earthquakes.php",
             type: 'GET',
@@ -72,34 +75,41 @@
                 west: $('#west').val(),
             },
             success: function(result) {
-                console.log(JSON.stringify(result));
                 if (result.status.name === "ok") {
-                    const earthquakes = result.data.earthquakes;
-                    let tableBody = $('#earthquakeTable tbody');
-                    tableBody.empty(); // Clear any existing rows
-
+                    let earthquakes = result.data.earthquakes;
+                    let table = `<table>
+                                    <thead>
+                                        <tr>
+                                            <th>Datetime</th>
+                                            <th>Depth</th>
+                                            <th>Longitude</th>
+                                            <th>Source</th>
+                                            <th>EQID</th>
+                                            <th>Magnitude</th>
+                                            <th>Latitude</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
                     earthquakes.forEach(earthquake => {
-                        let row = `<tr>
-                            <td>${earthquake.datetime}</td>
-                            <td>${earthquake.depth}</td>
-                            <td>${earthquake.lng}</td>
-                            <td>${earthquake.src}</td>
-                            <td>${earthquake.eqid}</td>
-                            <td>${earthquake.magnitude}</td>
-                            <td>${earthquake.lat}</td>
-                        </tr>`;
-                        tableBody.append(row);
+                        table += `<tr>
+                                    <td>${earthquake.datetime}</td>
+                                    <td>${earthquake.depth}</td>
+                                    <td>${earthquake.lng}</td>
+                                    <td>${earthquake.src}</td>
+                                    <td>${earthquake.eqid}</td>
+                                    <td>${earthquake.magnitude}</td>
+                                    <td>${earthquake.lat}</td>
+                                  </tr>`;
                     });
+                    table += `</tbody></table>`;
+                    $('#result3').html(table);
                 } else {
-                    alert('Error: ' + result.status.description);
+                    $('#result3').html('Error: ' + result.status.description);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error fetching data: ", textStatus, errorThrown);
-                $('#magnitude').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
+                $('#result3').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
             }
         });
-
     });
-
-
+});

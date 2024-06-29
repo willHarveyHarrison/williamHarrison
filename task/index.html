@@ -2,107 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>3 test apis</title>
-    <meta name="description" content="3 test apis">
+    <title>geonames API Demonstration</title>
+    <meta name="description" content="3 geonames apis">
     <meta name="author" content="Will H">
+    <link rel="stylesheet" href="libs/css/style.css">
 </head>
-<body>
-	<!-- start of airport wether bit-->
-    <select id="airportCode">
-        <option value="LSZH">Zurich airport (LSZH)</option>
-        <option value="EGKK">London Gatwick (EGKK)</option>
-        <option value="EGCC">Manchester (EGCC)</option>
-		<option value="LTFM">istanbul airport (LTFM)</option>
-		<option value="ZBAA">beijing international airport (ZBAA)</option>
-    </select>
-    <button id="button1">Run</button>
-    <br><br>
-    <div class="results1">
+<body >
+    <div id="preloader"></div>
         <table>
-            <tr>
-                <td align="right">Clouds: </td>
-                <td id="clouds"></td>
-            </tr>
-			<tr>
-                <td align="right">Humidity: </td>
-                <td id="humidity"></td>
-            </tr>
-			<tr>
-                <td align="right">WindSpeed: </td>
-                <td id="windSpeed"></td>
-            </tr>
-			<tr>
-                <td align="right">WindDirection: </td>
-                <td id="windDirection"></td>
-            </tr>
-        </table>
-    </div>
-	<!-- end of airport weather bit-->
-
-	<!-- start of timezone bit-->
-    <select id="lat">
-		<option value="10">10</option>
-        <option value="20">20</option>
-        <option value="30">30</option>
-        <option value="40">40</option>
-        <option value="50">50</option>
-    </select>
-	<select id="lng">
-		<option value="10">10</option>
-        <option value="20">20</option>
-        <option value="30">30</option>
-        <option value="40">40</option>
-        <option value="50">50</option>
-    </select>
-    <button id="button2">Run</button>
-    <br><br>
-    <div class="results2">
-        <table>
-            <tr>
-                <td align="right"> country</td>
-                <td id="timezoneCountry"></td>
-            </tr>
-            <tr>
-                <td align="right"> timezone</td>
-                <td id="timezone"></td>
-            </tr>
-        </table>
-    </div>
-	<!-- end of timezone bit-->
-
-
-	<!-- start of timezone bit-->
-    <div>North</div>
-    <input id="north"></input>
-	<div>South</div>
-    <input id="south"></input>
-    <div>East</div>
-    <input id="east"></input>
-	<div>West</div>
-    <input id="west"></input>
-    <br>
-    <button id="button3">Run</button>
-    <br><br>
-    <div class="results3" >
-        <table id="earthquakeTable" border="1">
             <thead>
                 <tr>
-                    <th>Datetime</th>
-                    <th>Depth</th>
-                    <th>Longitude</th>
-                    <th>Source</th>
-                    <th>EQID</th>
-                    <th>Magnitude</th>
-                    <th>Latitude</th>
+                    <th>API Name</th>
+                    <th>API Description</th>
+                    <th>Submit</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Data will be inserted here -->
+                <!-- Airport Weather API -->
+                <tr>
+                    <td>Airport Weather</td>
+                    <td>
+                        <p>This api returns the weather of an airport given the ICAO code</p>
+                        Airport: <select id="airportCode">
+                            <option value="LSZH">Zurich airport (LSZH)</option>
+                            <option value="EGKK">London Gatwick (EGKK)</option>
+                            <option value="EGCC">Manchester (EGCC)</option>
+                            <option value="LTFM">Istanbul airport (LTFM)</option>
+                            <option value="ZBAA">Beijing International airport (ZBAA)</option>
+                        </select>
+                    </td>
+                    <td><button id="button1">Submit</button></td>
+                </tr>
+                <!-- Timezone API -->
+                <tr>
+                    <td>Timezone</td>
+                    <td>
+                        <p> This api returns the timezone and country name given its latatude and longitude</p>
+                        Latitude: <select id="lat">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                            <option value="50">50</option>
+                        </select>
+                        Longitude: <select id="lng">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                            <option value="50">50</option>
+                        </select>
+                    </td>
+                    <td><button id="button2">Submit</button></td>
+                </tr>
+                <!-- Earthquake API -->
+                <tr>
+                    <td>Earthquake</td>
+                    <td>
+                        <p> This api returns Earthquake details withing a given bounding box </p>
+                        North: <input id="north" type="text">
+                        South: <input id="south" type="text">
+                        East: <input id="east" type="text">
+                        West: <input id="west" type="text">
+                    </td>
+                    <td><button id="button3">Submit</button></td>
+                </tr>
             </tbody>
         </table>
-    </div>
-	<!-- end of timezone bit-->
 
+        <div class="results">
+            <h2>Results</h2>
+            <div id="result1"></div>
+            <div id="result2"></div>
+            <div id="result3"></div>
+        </div>
     <script type="application/javascript" src="libs/js/jquery-3.7.1.min.js"></script>
     <script type="application/javascript" src="libs/js/script.js"></script>
 </body>

@@ -9,7 +9,7 @@ $north = filter_input(INPUT_GET, 'north', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_F
 $west = filter_input(INPUT_GET, 'west', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
 // Build the request URL
-$url = 'http://api.geonames.org/earthquakesJSON?north=' . $north . '&south=-' . $south . '&east=-' . $east . '&west=' . $west . '&username=billboney';
+$url = 'http://api.geonames.org/earthquakesJSON?north=' . $north . '&south=' . $south . '&east=' . $east . '&west=' . $west . '&username=billboney';
 
 // Initialize cURL 
 $ch = curl_init();
