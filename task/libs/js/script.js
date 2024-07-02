@@ -18,20 +18,23 @@ $(document).ready(function() {
             },
             success: function(result) {
                 if (result.status.name === "ok") {
-                    $('#result1').html(
-                        `<table>
-                            <tr><td>Clouds:</td><td>${result.data.clouds}</td></tr>
-                            <tr><td>Humidity:</td><td>${result.data.humidity}</td></tr>
-                            <tr><td>Wind Speed:</td><td>${result.data.windSpeed}</td></tr>
-                            <tr><td>Wind Direction:</td><td>${result.data.windDirection}</td></tr>
-                        </table>`
-                    );
+                    const table = $('<table></table>');
+                    const rows = [
+                        `<tr><td>Clouds:</td><td>${result.data.clouds}</td></tr>`,
+                        `<tr><td>Humidity:</td><td>${result.data.humidity}</td></tr>`,
+                        `<tr><td>Wind Speed:</td><td>${result.data.windSpeed}</td></tr>`,
+                        `<tr><td>Wind Direction:</td><td>${result.data.windDirection}</td></tr>`
+                    ];
+                    rows.forEach(row => {
+                        table.append(row);
+                    });
+                    $('#result1').empty().append(table);
                 } else {
-                    $('#result1').html('Error: ' + result.status.description);
+                    $('#result1').text('Error: ' + result.status.description);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                $('#result1').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
+                $('#result1').text('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
             }
         });
     });
@@ -47,18 +50,21 @@ $(document).ready(function() {
             },
             success: function(result) {
                 if (result.status.name === "ok") {
-                    $('#result2').html(
-                        `<table>
-                            <tr><td>Country:</td><td>${result.data.timezoneId}</td></tr>
-                            <tr><td>Timezone:</td><td>${result.data.time}</td></tr>
-                        </table>`
-                    );
+                    const table = $('<table></table>');
+                    const rows = [
+                        `<tr><td>Country:</td><td>${result.data.timezoneId}</td></tr>`,
+                        `<tr><td>Timezone:</td><td>${result.data.time}</td></tr>`
+                    ];
+                    rows.forEach(row => {
+                        table.append(row);
+                    });
+                    $('#result2').empty().append(table);
                 } else {
-                    $('#result2').html('Error: ' + result.status.description);
+                    $('#result2').text('Error: ' + result.status.description);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                $('#result2').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
+                $('#result2').text('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
             }
         });
     });
@@ -77,38 +83,40 @@ $(document).ready(function() {
             success: function(result) {
                 if (result.status.name === "ok") {
                     let earthquakes = result.data.earthquakes;
-                    let table = `<table>
-                                    <thead>
-                                        <tr>
-                                            <th>Datetime</th>
-                                            <th>Depth</th>
-                                            <th>Longitude</th>
-                                            <th>Source</th>
-                                            <th>EQID</th>
-                                            <th>Magnitude</th>
-                                            <th>Latitude</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
+                    let table = $('<table></table>');
+                    let thead = `<thead>
+                                    <tr>
+                                        <th>Datetime</th>
+                                        <th>Depth</th>
+                                        <th>Longitude</th>
+                                        <th>Source</th>
+                                        <th>EQID</th>
+                                        <th>Magnitude</th>
+                                        <th>Latitude</th>
+                                    </tr>
+                                </thead>`;
+                    table.append(thead);
+                    let tbody = $('<tbody></tbody>');
                     earthquakes.forEach(earthquake => {
-                        table += `<tr>
-                                    <td>${earthquake.datetime}</td>
-                                    <td>${earthquake.depth}</td>
-                                    <td>${earthquake.lng}</td>
-                                    <td>${earthquake.src}</td>
-                                    <td>${earthquake.eqid}</td>
-                                    <td>${earthquake.magnitude}</td>
-                                    <td>${earthquake.lat}</td>
-                                  </tr>`;
+                        let row = `<tr>
+                                        <td>${earthquake.datetime}</td>
+                                        <td>${earthquake.depth}</td>
+                                        <td>${earthquake.lng}</td>
+                                        <td>${earthquake.src}</td>
+                                        <td>${earthquake.eqid}</td>
+                                        <td>${earthquake.magnitude}</td>
+                                        <td>${earthquake.lat}</td>
+                                   </tr>`;
+                        tbody.append(row);
                     });
-                    table += `</tbody></table>`;
-                    $('#result3').html(table);
+                    table.append(tbody);
+                    $('#result3').empty().append(table);
                 } else {
-                    $('#result3').html('Error: ' + result.status.description);
+                    $('#result3').text('Error: ' + result.status.description);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                $('#result3').html('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
+                $('#result3').text('Error retrieving data: ' + textStatus + ' - ' + errorThrown);
             }
         });
     });
