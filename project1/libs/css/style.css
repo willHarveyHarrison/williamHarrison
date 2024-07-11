@@ -1,4 +1,18 @@
+
 #map {
     width: 100%;
     height: 100vh;
+    z-index: 0;
+    position: relative;
+}
+
+#flag {
+    color: red;
+    font-size: large;
+    z-index: 1000; /* Higher z-index to ensure it is above the map */
+    position: absolute; /* Absolute positioning */
+    background-color: aliceblue;
+    top: 10px; /* Distance from the top of the map */
+    left: 50%; /* Distance from the left of the map */
+    padding: 5px; /* Padding for better appearance */
 }
