@@ -12,7 +12,19 @@
     z-index: 1000; /* Higher z-index to ensure it is above the map */
     position: absolute; /* Absolute positioning */
     background-color: aliceblue;
-    top: 10px; /* Distance from the top of the map */
-    left: 50%; /* Distance from the left of the map */
+    left: 5%; /* Distance from the left of the map */
+    top: 3%;
     padding: 5px; /* Padding for better appearance */
 }
+
+#countrySelect {
+    color: red;
+    font-size: large;
+    z-index: 1000; /* Higher z-index to ensure it is above the map */
+    position: absolute; /* Absolute positioning */
+    background-color: aliceblue;
+    left: 50%; /* Distance from the left of the map */
+    top: 3%;
+    padding: 5px; /* Padding for better appearance */
+}
+
