@@ -56,6 +56,7 @@
                 echo '<p>GeoJSON file not found.</p>';
             }
             ?>
+            <input type="submit" id="submitCountry">
         </form>
     </div>
 </body>

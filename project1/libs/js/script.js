@@ -1,45 +1,42 @@
-import { tomtomKey } from './keys.js'; // Correct import syntax
-import { countriesGeoJson } from '../geojson/countryBorders.geo.js'
-//map init
-var map = L.map('map');
+import { tomtomKey } from './keys.js';
+import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
 
-//map view bound box
-map.fitBounds([
-    [40.712, -74.227],
-    [40.774, -74.125]
-]);
+// Map initialization
+var map = L.map('map').setView([20, 0], 2); // Initial view set globally
 
-// init satellite layer
+// Initialize satellite layer
 var tomtomsatellite = L.tileLayer(`https://api.tomtom.com/map/1/tile/sat/main/{z}/{x}/{y}.jpg?key=${tomtomKey}`, {
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
 
-// init streetview layer
+// Initialize street view layer
 var streetView = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
 
-// add tile layers to object for controll panel
+// Add tile layers to object for control panel
 var baseMaps = {
-    "satellite": tomtomsatellite,
-    "street": streetView
+    "Satellite": tomtomsatellite,
+    "Street": streetView
 };
 
-
+// Add default layer to map
 streetView.addTo(map);
 
-
-
-// add tile control panel to map
+// Add tile control panel to map
 L.control.layers(baseMaps).addTo(map);
-// add country borders to map
-//this adds all countries to the map => L.geoJSON(countriesGeoJson).addTo(map);
 
-
-// Function to filter and display the country
-function showCountry(country) {
+// Function to filter and display the country by ISO code
+function showCountryByISO(isoCode) {
     var countryFeature = countriesGeoJson.features.filter(function(feature) {
-        return feature.properties.name === country;
+        return feature.properties.iso_a3 === isoCode;
+    });
+
+    // Clear existing country layers
+    map.eachLayer(function (layer) {
+        if (layer instanceof L.GeoJSON) {
+            map.removeLayer(layer);
+        }
     });
 
     // Add the filtered feature to the map
@@ -53,8 +50,6 @@ function showCountry(country) {
         }
     }).addTo(map);
 }
-//shows poligon for selected country
-showCountry("United States");
 
 // Function to find the extrema for a specific country
 function findExtrema(geoJson, countryName) {
@@ -94,13 +89,36 @@ function findExtrema(geoJson, countryName) {
     return { south, west, east, north };
 }
 
-// Find the extrema in the GeoJSON MultiPolygon for Australia
-var extrema = findExtrema(countriesGeoJson, "United States");
-console.log('Southernmost point:', extrema.south);
-console.log('Westernmost point:', extrema.west);
-console.log('Easternmost point:', extrema.east);
-console.log('Northernmost point:', extrema.north);
+// Handle country selection form submission
+$(document).ready(function() {
+    $('#countrySelect').on('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting the traditional way
+        const selectedCountryISO = $('select[name="country"]').val();
+        console.log('Selected Country ISO Code:', selectedCountryISO);
 
+        // Find the selected country by ISO code
+        const country = countriesGeoJson.features.find(feature => feature.properties.iso_a3 === selectedCountryISO);
+
+        if (country) {
+            // Show the selected country
+            showCountryByISO(selectedCountryISO);
+
+            // Find and fit the extrema for the selected country
+            var extrema = findExtrema(countriesGeoJson, country.properties.name);
+            map.fitBounds([
+                [extrema.south, extrema.west],
+                [extrema.north, extrema.east]
+            ]);
+        }
+    });
+});
+
+
+
+
+// Initial display of Japan for demonstration
+showCountryByISO('JPN');
+var extrema = findExtrema(countriesGeoJson, "Japan");
 map.fitBounds([
     [extrema.south, extrema.west],
     [extrema.north, extrema.east]
