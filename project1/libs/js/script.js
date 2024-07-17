@@ -1,6 +1,8 @@
 import { tomtomKey } from './keys.js';
 import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
 
+
+//------------------------------------ map and tile layers -----------------------------------------------------------------------------//
 // Map initialization
 var map = L.map('map').setView([20, 0], 2); // Initial view set globally
 
@@ -26,6 +28,8 @@ streetView.addTo(map);
 // Add tile control panel to map
 L.control.layers(baseMaps).addTo(map);
 
+
+//------------------------------------ functions -----------------------------------------------------------------------------//
 // Function to filter and display the country by ISO code
 function showCountryByISO(isoCode) {
     var countryFeature = countriesGeoJson.features.filter(function(feature) {
@@ -51,7 +55,7 @@ function showCountryByISO(isoCode) {
     }).addTo(map);
 }
 
-// Function to find the extrema for a specific country
+// Function to find the extrema for a specific country by countryname
 function findExtrema(geoJson, countryName) {
     let south = Infinity;
     let west = Infinity;
@@ -89,6 +93,40 @@ function findExtrema(geoJson, countryName) {
     return { south, west, east, north };
 }
 
+// get user location
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+
+// send alert of user long and lat
+function showPosition(position) {
+    var lat = position.coords.latitude;
+    var lon = position.coords.longitude;
+    alert("Latitude: " + lat + "\nLongitude: " + lon);
+}
+
+// handel error
+function showError(error) {
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            alert("User denied the request for Geolocation.");
+            break;
+        case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+        case error.TIMEOUT:
+            alert("The request to get user location timed out.");
+            break;
+        case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+    }
+}
+//------------------------ handel user input -------------------------------------------------------------------//
 // Handle country selection form submission
 $(document).ready(function() {
     $('#countrySelect').on('submit', function(event) {
@@ -115,7 +153,7 @@ $(document).ready(function() {
 
 
 
-
+//---------------------- default display initialization --------------------------------------------------//
 // Initial display of Japan for demonstration
 showCountryByISO('JPN');
 var extrema = findExtrema(countriesGeoJson, "Japan");
@@ -123,3 +161,6 @@ map.fitBounds([
     [extrema.south, extrema.west],
     [extrema.north, extrema.east]
 ]);
+
+// init get user location
+getLocation();

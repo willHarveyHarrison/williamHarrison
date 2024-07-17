@@ -57,6 +57,7 @@
             }
             ?>
             <input type="submit" id="submitCountry">
+            <button id="userLocation">Get Location</button>
         </form>
     </div>
 </body>
