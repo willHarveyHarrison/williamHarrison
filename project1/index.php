@@ -57,9 +57,10 @@
             }
             ?>
             <input type="submit" id="submitCountry">
-            <button id="userLocation">Get Location</button>
+            
         </form>
     </div>
+    <button id="userLocation">Get Location</button>
 </body>
 
     <script type="application/javascript" src="libs/js/jquery-3.7.1.min.js"></script>
