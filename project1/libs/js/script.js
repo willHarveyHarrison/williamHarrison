@@ -51,6 +51,9 @@ function showCountryByISO(isoCode) {
             });
         }
     }).addTo(map);
+
+    // Find and fit the extrema for the country
+    findExtrema(countriesGeoJson, isoCode);
 }
 
 // Function to check if a point is inside a polygon
@@ -69,14 +72,14 @@ function pointInPolygon(point, vs) {
     return inside;
 }
 
-// Function to find the extrema for a specific country by country name
-function findExtrema(geoJson, countryName) {
+// Function to find the extrema for a specific country by country ISO code
+function findExtrema(geoJson, countryIso) {
     let south = Infinity;
     let west = Infinity;
     let east = -Infinity;
     let north = -Infinity;
 
-    let countryFeature = geoJson.features.find(feature => feature.properties.name === countryName);
+    let countryFeature = geoJson.features.find(feature => feature.properties.iso_a3 === countryIso);
 
     if (countryFeature) {
         if (countryFeature.geometry.type === "MultiPolygon") {
@@ -104,7 +107,10 @@ function findExtrema(geoJson, countryName) {
         }
     }
 
-    return { south, west, east, north };
+    map.fitBounds([
+        [south, west],
+        [north, east]
+    ]);
 }
 
 // Function to get the user's current position
@@ -120,9 +126,13 @@ function getUserLocation() {
         }, function(error) {
             console.error('Geolocation error:', error);
             alert('Unable to retrieve your location.');
+            // Display Japan if location cannot be retrieved
+            showDefaultCountry();
         });
     } else {
         alert('Geolocation is not supported by this browser.');
+        // Display Japan if geolocation is not supported
+        showDefaultCountry();
     }
 }
 
@@ -140,13 +150,6 @@ function showCountryByLatLon(lon, lat) {
 
     if (countryFeature) {
         showCountryByISO(countryFeature.properties.iso_a3);
-
-        // Find and fit the extrema for the country
-        var extrema = findExtrema(countriesGeoJson, countryFeature.properties.name);
-        map.fitBounds([
-            [extrema.south, extrema.west],
-            [extrema.north, extrema.east]
-        ]);
     } else {
         alert('No country found at the given coordinates.');
     }
@@ -155,6 +158,11 @@ function showCountryByLatLon(lon, lat) {
 // Function to handle opening the country panel (dummy function)
 function openCountryPanel(countryName) {
     alert("Opening panel for " + countryName);
+}
+
+// Function to display a default country (Japan) if user location cannot be determined
+function showDefaultCountry() {
+    showCountryByISO('JPN');
 }
 
 //------------------------ handle user input -------------------------------------------------------------------//
@@ -171,28 +179,9 @@ $(document).ready(function() {
         if (country) {
             // Show the selected country
             showCountryByISO(selectedCountryISO);
-
-            // Find and fit the extrema for the selected country
-            var extrema = findExtrema(countriesGeoJson, country.properties.name);
-            map.fitBounds([
-                [extrema.south, extrema.west],
-                [extrema.north, extrema.east]
-            ]);
         }
     });
 
     // Get and display the user's location on map load
     getUserLocation();
 });
-
-//---------------------- default display initialization --------------------------------------------------//
-// Initial display of Japan for demonstration
-showCountryByISO('JPN');
-var extrema = findExtrema(countriesGeoJson, "Japan");
-map.fitBounds([
-    [extrema.south, extrema.west],
-    [extrema.north, extrema.east]
-]);
-
-// init get user location
-getUserLocation();
