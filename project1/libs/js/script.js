@@ -1,22 +1,28 @@
 import { tomtomKey } from './keys.js';
+import { openCageKey } from './keys.js';
 import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
 
-//------------------------------------ map and tile layers -----------------------------------------------------------------------------//
-// Map initialization
-var map = L.map('map').setView([20, 0], 2); // Initial view set globally
+//------------------------------------ Map and Tile Layers -----------------------------------------------------------------------------//
+// Global variables
+const DEFAULT_COUNTRY_ISO = 'JPN';
+let currentCountryFeature = null;
+let searchLat = null;
+let searchLong = null;
 
-// Initialize satellite layer
-var tomtomsatellite = L.tileLayer(`https://api.tomtom.com/map/1/tile/sat/main/{z}/{x}/{y}.jpg?key=${tomtomKey}`, {
+// Map initialization
+const map = L.map('map').setView([20, 0], 2); // Initial view set globally
+
+// Initialize satellite and street view layers
+const tomtomsatellite = L.tileLayer(`https://api.tomtom.com/map/1/tile/sat/main/{z}/{x}/{y}.jpg?key=${tomtomKey}`, {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
 
-// Initialize street view layer
-var streetView = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+const streetView = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
 
 // Add tile layers to object for control panel
-var baseMaps = {
+const baseMaps = {
     "Satellite": tomtomsatellite,
     "Street": streetView
 };
@@ -27,25 +33,33 @@ streetView.addTo(map);
 // Add tile control panel to map
 L.control.layers(baseMaps).addTo(map);
 
-//------------------------------------ functions -----------------------------------------------------------------------------//
+// Function to handle opening the country panel
+function openCountryPanel(countryName) {
+    alert("Opening panel for " + countryName);
+}
+
+//------------------------------------ Functions -----------------------------------------------------------------------------//
 // Function to filter and display the country by ISO code
 function showCountryByISO(isoCode) {
-    var countryFeature = countriesGeoJson.features.filter(function(feature) {
-        return feature.properties.iso_a3 === isoCode;
-    });
+    currentCountryFeature = countriesGeoJson.features.find(feature => feature.properties.iso_a3 === isoCode);
+
+    if (!currentCountryFeature) {
+        alert("Country not found!");
+        return;
+    }
 
     // Clear existing country layers
-    map.eachLayer(function (layer) {
+    map.eachLayer(layer => {
         if (layer instanceof L.GeoJSON) {
             map.removeLayer(layer);
         }
     });
 
     // Add the filtered feature to the map
-    L.geoJSON(countryFeature, {
-        onEachFeature: function (feature, layer) {
+    L.geoJSON(currentCountryFeature, {
+        onEachFeature: (feature, layer) => {
             layer.on({
-                click: function (e) {
+                click: () => {
                     openCountryPanel(feature.properties.name);
                 }
             });
@@ -53,99 +67,75 @@ function showCountryByISO(isoCode) {
     }).addTo(map);
 
     // Find and fit the extrema for the country
-    findExtrema(countriesGeoJson, isoCode);
+    findExtrema(currentCountryFeature);
 }
 
 // Function to check if a point is inside a polygon
 function pointInPolygon(point, vs) {
-    var x = point[0], y = point[1];
+    const [x, y] = point;
+    let inside = false;
 
-    var inside = false;
-    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        var xi = vs[i][0], yi = vs[i][1];
-        var xj = vs[j][0], yj = vs[j][1];
+    for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        const [xi, yi] = vs[i];
+        const [xj, yj] = vs[j];
 
-        var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
         if (intersect) inside = !inside;
     }
 
     return inside;
 }
 
-// Function to find the extrema for a specific country by country ISO code
-function findExtrema(geoJson, countryIso) {
-    let south = Infinity;
-    let west = Infinity;
-    let east = -Infinity;
-    let north = -Infinity;
+// Function to find the extrema for a specific country feature
+function findExtrema(countryFeature) {
+    let south = Infinity, west = Infinity, north = -Infinity, east = -Infinity;
 
-    let countryFeature = geoJson.features.find(feature => feature.properties.iso_a3 === countryIso);
+    const coordinates = countryFeature.geometry.type === "MultiPolygon" 
+        ? countryFeature.geometry.coordinates.flat(2)
+        : countryFeature.geometry.coordinates.flat();
 
-    if (countryFeature) {
-        if (countryFeature.geometry.type === "MultiPolygon") {
-            countryFeature.geometry.coordinates.forEach(polygon => {
-                polygon.forEach(ring => {
-                    ring.forEach(coord => {
-                        let [lon, lat] = coord;
-                        if (lat < south) south = lat;
-                        if (lat > north) north = lat;
-                        if (lon < west) west = lon;
-                        if (lon > east) east = lon;
-                    });
-                });
-            });
-        } else if (countryFeature.geometry.type === "Polygon") {
-            countryFeature.geometry.coordinates.forEach(ring => {
-                ring.forEach(coord => {
-                    let [lon, lat] = coord;
-                    if (lat < south) south = lat;
-                    if (lat > north) north = lat;
-                    if (lon < west) west = lon;
-                    if (lon > east) east = lon;
-                });
-            });
-        }
-    }
+    coordinates.forEach(([lon, lat]) => {
+        if (lat < south) south = lat;
+        if (lat > north) north = lat;
+        if (lon < west) west = lon;
+        if (lon > east) east = lon;
+    });
 
-    map.fitBounds([
-        [south, west],
-        [north, east]
-    ]);
+    //set position to center
+    searchLat = (north + south)/2
+    searchLong = (west + east)/2
+
+    console.log(searchLat)
+    console.log(searchLong)
+
+    map.fitBounds([[south, west], [north, east]]);
+
+
 }
 
 // Function to get the user's current position
 function getUserLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            console.log('User location:', lat, lon);
-
-            // Show the country at the user's location
-            showCountryByLatLon(lon, lat);
-        }, function(error) {
-            console.error('Geolocation error:', error);
-            alert('Unable to retrieve your location.');
-            // Display Japan if location cannot be retrieved
-            showDefaultCountry();
-        });
+        navigator.geolocation.getCurrentPosition(
+            position => showCountryByLatLon(position.coords.longitude, position.coords.latitude),
+            error => {
+                console.error('Geolocation error:', error);
+                alert('Unable to retrieve your location. Displaying default country.');
+                showDefaultCountry();
+            }
+        );
     } else {
         alert('Geolocation is not supported by this browser.');
-        // Display Japan if geolocation is not supported
         showDefaultCountry();
     }
 }
 
 // Function to find the country containing the given longitude and latitude
 function showCountryByLatLon(lon, lat) {
-    var countryFeature = countriesGeoJson.features.find(function(feature) {
-        var coordinates = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
 
-        return coordinates.some(function(polygon) {
-            return polygon.some(function(ring) {
-                return pointInPolygon([lon, lat], ring);
-            });
-        });
+    const countryFeature = countriesGeoJson.features.find(feature => {
+        const coordinates = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+        return coordinates.some(polygon => polygon.some(ring => pointInPolygon([lon, lat], ring)));
     });
 
     if (countryFeature) {
@@ -155,17 +145,12 @@ function showCountryByLatLon(lon, lat) {
     }
 }
 
-// Function to handle opening the country panel (dummy function)
-function openCountryPanel(countryName) {
-    alert("Opening panel for " + countryName);
-}
-
-// Function to display a default country (Japan) if user location cannot be determined
+// Function to display a default country if user location cannot be determined
 function showDefaultCountry() {
-    showCountryByISO('JPN');
+    showCountryByISO(DEFAULT_COUNTRY_ISO);
 }
 
-//------------------------ handle user input -------------------------------------------------------------------//
+//------------------------ Handle User Input -------------------------------------------------------------------//
 // Handle country selection form submission
 $(document).ready(function() {
     $('#countrySelect').on('submit', function(event) {
@@ -173,15 +158,73 @@ $(document).ready(function() {
         const selectedCountryISO = $('select[name="country"]').val();
         console.log('Selected Country ISO Code:', selectedCountryISO);
 
-        // Find the selected country by ISO code
         const country = countriesGeoJson.features.find(feature => feature.properties.iso_a3 === selectedCountryISO);
 
         if (country) {
-            // Show the selected country
             showCountryByISO(selectedCountryISO);
+        } else {
+            alert("Selected country not found!");
         }
     });
 
     // Get and display the user's location on map load
     getUserLocation();
 });
+
+// Add easy 1 button to map
+L.easyButton('fa-solid fa-circle-info', function(btn, map) {
+    buttonOneInfo();
+    $("#infoModal").modal("show");
+}).addTo(map);
+
+// Function to fetch and display country info using OpenCage API
+function buttonOneInfo() {
+    $.ajax({
+        url: "libs/php/infoButton.php",
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            openCageKey,
+            countryIso_a3: currentCountryFeature.properties.iso_a3,
+            countryName: currentCountryFeature.properties.name.trim(),
+            lat: searchLat,
+            long: searchLong
+         },
+        success: function(result) {
+            const annotations = result.results[0].annotations;
+            console.log(result.results[0]);
+            console.log(annotations);
+            console.log("Drive on the " + annotations.roadinfo.drive_on);
+            console.log("Timezone: " + annotations.timezone.name);
+            console.log("Currency: " + annotations.currency.name);
+            console.log(currentCountryFeature.properties.iso_a3);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('OpenCage error: ' + errorThrown);
+        }
+    });
+}
+
+// Add easy 2 button to map
+L.easyButton('fa-solid fa-users', function(btn, map) {
+    fetchCountryInfo();
+    $("#infoModal").modal("show");
+}).addTo(map);
+
+// Add easy 3 button to map
+L.easyButton('fa-solid fa-landmark', function(btn, map) {
+    fetchCountryInfo();
+    $("#infoModal").modal("show");
+}).addTo(map);
+
+// Add easy 4 button to map
+L.easyButton('fa-solid fa-globe', function(btn, map) {
+    fetchCountryInfo();
+    $("#infoModal").modal("show");
+}).addTo(map);
+
+// Add easy 5 button to map
+L.easyButton('fa-solid fa-truck-fast', function(btn, map) {
+    fetchCountryInfo();
+    $("#infoModal").modal("show");
+}).addTo(map);

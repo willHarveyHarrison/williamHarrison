@@ -8,7 +8,8 @@
     <link rel="icon" href="favicon.png">
 
     <link rel="stylesheet" href="libs/css/style.css">
-
+    <script src="https://kit.fontawesome.com/9e9d997641.js" crossorigin="anonymous"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
@@ -17,6 +18,13 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton@2.4.0/src/easy-button.css" />
+    <script src="https://unpkg.com/leaflet-easybutton@2.4.0/src/easy-button.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+     crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -59,10 +67,31 @@
             <input type="submit" id="submitCountry">
             
         </form>
-    </div>
-    <button id="userLocation">Get Location</button>
+
+        <!-- example modal layout -->
+
+        <div id="infoModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-success bg-gradient text-white">
+                        <h5 class="modal-title"></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+
 </body>
 
-    <script type="application/javascript" src="libs/js/jquery-3.7.1.min.js"></script>
-    <script type="module" src="libs/js/script.js"></script>
+<script type="application/javascript" src="libs/js/jquery-3.7.1.min.js"></script>
+<script type="module" src="libs/js/script.js"></script>
+
 </html>
