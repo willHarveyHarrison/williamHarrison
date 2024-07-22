@@ -68,8 +68,8 @@
             
         </form>
 
-        <!-- example modal layout -->
 
+        <!-- info modal -->
         <div id="infoModal" class="modal" data-bs-backdrop="false" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content shadow">
@@ -77,8 +77,8 @@
                         <h5 class="modal-title"></h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        
+                    <div class="modal-body" id="infoModalTable">
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
@@ -88,7 +88,81 @@
             </div>
          </div>
 
+        <!-- people modal -->
+        <div id="peopleModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-success bg-gradient text-white">
+                        <h5 class="modal-title"></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="peopleModalTable">
 
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+        <!-- bank modal -->
+        <div id="bankModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-success bg-gradient text-white">
+                        <h5 class="modal-title"></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="bankModalTable">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+        <!-- news modal -->
+        <div id="newsModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-success bg-gradient text-white">
+                        <h5 class="modal-title"></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="newsModalTable">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+        <!-- driver modal -->
+        <div id="diverModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-success bg-gradient text-white">
+                        <h5 class="modal-title"></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="driverModalTable">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+         </div>
 </body>
 
 <script type="application/javascript" src="libs/js/jquery-3.7.1.min.js"></script>

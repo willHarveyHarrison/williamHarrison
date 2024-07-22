@@ -178,6 +178,7 @@ L.easyButton('fa-solid fa-circle-info', function(btn, map) {
 }).addTo(map);
 
 // Function to fetch and display country info using OpenCage API
+// this might need preloaderrrrr <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 function buttonOneInfo() {
     $.ajax({
         url: "libs/php/infoButton.php",
@@ -185,7 +186,7 @@ function buttonOneInfo() {
         dataType: 'json',
         data: { 
             openCageKey,
-            countryIso_a3: currentCountryFeature.properties.iso_a3,
+            countryIso_a2: currentCountryFeature.properties.iso_a2,
             countryName: currentCountryFeature.properties.name.trim(),
             lat: searchLat,
             long: searchLong
@@ -198,6 +199,15 @@ function buttonOneInfo() {
             console.log("Timezone: " + annotations.timezone.name);
             console.log("Currency: " + annotations.currency.name);
             console.log(currentCountryFeature.properties.iso_a3);
+
+            const table = $('<table></table>');
+            const rows = [
+                `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
+            ];
+            rows.forEach(row => {
+                table.append(row);
+            });
+            $('#infoModalTable').empty().append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('OpenCage error: ' + errorThrown);

@@ -28,6 +28,7 @@ function fetchGeocodeData($url) {
 // Input validation and sanitization
 $openCageKey = isset($_REQUEST['openCageKey']) ? htmlspecialchars($_REQUEST['openCageKey']) : '';
 $countryName = isset($_REQUEST['countryName']) ? urlencode(htmlspecialchars($_REQUEST['countryName'])) : '';
+$countryIso_a2 = isset($_REQUEST['countryIso_a2']) ? urlencode(htmlspecialchars($_REQUEST['countryIso_a2'])) : '';
 $lat = isset($_REQUEST['lat']) ? htmlspecialchars($_REQUEST['lat']) : '';
 $long = isset($_REQUEST['long']) ? htmlspecialchars($_REQUEST['long']) : '';
 
@@ -37,7 +38,7 @@ if (empty($openCageKey)) {
 }
 
 // Define the URLs with the OpenCage API key and query parameters
-$url1 = "https://api.opencagedata.com/geocode/v1/json?key=$openCageKey&q=2C+$countryName&pretty=1";
+$url1 = "https://api.opencagedata.com/geocode/v1/json?key=$openCageKey&q=$countryName&countrycode=$countryIso_a2&pretty=1";
 $url2 = "https://api.opencagedata.com/geocode/v1/json?key=$openCageKey&q=$lat%2C$long&pretty=1";
 
 // Try the first URL
