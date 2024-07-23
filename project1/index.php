@@ -30,6 +30,7 @@
 <body>
     <div id="map">
         <div id="flag">hello</div>
+        
         <form id="countrySelect">
             <?php
             // Path to the GeoJSON file
@@ -146,7 +147,7 @@
          </div>
 
         <!-- driver modal -->
-        <div id="diverModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+        <div id="driverModal" class="modal" data-bs-backdrop="false" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content shadow">
                     <div class="modal-header bg-success bg-gradient text-white">

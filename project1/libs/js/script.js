@@ -68,6 +68,7 @@ function showCountryByISO(isoCode) {
 
     // Find and fit the extrema for the country
     findExtrema(currentCountryFeature);
+    changeFlag(currentCountryFeature.properties.iso_a2)
 }
 
 // Function to check if a point is inside a polygon
@@ -150,6 +151,12 @@ function showDefaultCountry() {
     showCountryByISO(DEFAULT_COUNTRY_ISO);
 }
 
+function changeFlag(countryiso2){
+    let flag = [`<img src=https://flagsapi.com/${countryiso2}/flat/64.png></img>`];
+
+    $('#flag').empty().append(flag)
+}
+
 //------------------------ Handle User Input -------------------------------------------------------------------//
 // Handle country selection form submission
 $(document).ready(function() {
@@ -171,15 +178,15 @@ $(document).ready(function() {
     getUserLocation();
 });
 
-// Add easy 1 button to map
+// Add info button to map
 L.easyButton('fa-solid fa-circle-info', function(btn, map) {
-    buttonOneInfo();
+    infoButton();
     $("#infoModal").modal("show");
 }).addTo(map);
 
 // Function to fetch and display country info using OpenCage API
 // this might need preloaderrrrr <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-function buttonOneInfo() {
+function infoButton() {
     $.ajax({
         url: "libs/php/infoButton.php",
         type: 'GET',
@@ -215,26 +222,172 @@ function buttonOneInfo() {
     });
 }
 
-// Add easy 2 button to map
+// Add people button to map
 L.easyButton('fa-solid fa-users', function(btn, map) {
-    fetchCountryInfo();
-    $("#infoModal").modal("show");
+    peopleButton();
+    $("#peopleModal").modal("show");
 }).addTo(map);
 
-// Add easy 3 button to map
+function peopleButton() {
+    $.ajax({
+        url: "libs/php/infoButton.php",
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            openCageKey,
+            countryIso_a2: currentCountryFeature.properties.iso_a2,
+            countryName: currentCountryFeature.properties.name.trim(),
+            lat: searchLat,
+            long: searchLong
+         },
+        success: function(result) {
+            const annotations = result.results[0].annotations;
+            console.log(result.results[0]);
+            console.log(annotations);
+            console.log("Drive on the " + annotations.roadinfo.drive_on);
+            console.log("Timezone: " + annotations.timezone.name);
+            console.log("Currency: " + annotations.currency.name);
+            console.log(currentCountryFeature.properties.iso_a3);
+
+            const table = $('<table></table>');
+            const rows = [
+                `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
+            ];
+            rows.forEach(row => {
+                table.append(row);
+            });
+            $('#peopleModalTable').empty().append(table);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('OpenCage error: ' + errorThrown);
+        }
+    });
+}
+
+// Add bank button to map
 L.easyButton('fa-solid fa-landmark', function(btn, map) {
-    fetchCountryInfo();
-    $("#infoModal").modal("show");
+    bankButton();
+    $("#bankModal").modal("show");
 }).addTo(map);
 
-// Add easy 4 button to map
+function bankButton() {
+    $.ajax({
+        url: "libs/php/infoButton.php",
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            openCageKey,
+            countryIso_a2: currentCountryFeature.properties.iso_a2,
+            countryName: currentCountryFeature.properties.name.trim(),
+            lat: searchLat,
+            long: searchLong
+         },
+        success: function(result) {
+            const currency = result.results[0].annotations.currency;
+            console.log(result.results[0]);
+            console.log(currency)
+            console.log(currentCountryFeature.properties.iso_a3);
+
+            const table = $('<table></table>');
+            const rows = [
+                `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
+                `<tr><td>Symbol :</td><td>${currency.symbol}</td></tr>`,
+            ];
+            rows.forEach(row => {
+                table.append(row);
+            });
+            $('#bankModalTable').empty().append(table);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('OpenCage error: ' + errorThrown);
+        }
+    });
+}
+
+// Add news button to map
 L.easyButton('fa-solid fa-globe', function(btn, map) {
-    fetchCountryInfo();
-    $("#infoModal").modal("show");
+    newsButton();
+    $("#newsModal").modal("show");
 }).addTo(map);
 
-// Add easy 5 button to map
+
+function newsButton() {
+    $.ajax({
+        url: "libs/php/infoButton.php",
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            openCageKey,
+            countryIso_a2: currentCountryFeature.properties.iso_a2,
+            countryName: currentCountryFeature.properties.name.trim(),
+            lat: searchLat,
+            long: searchLong
+         },
+        success: function(result) {
+            const annotations = result.results[0].annotations;
+            console.log(result.results[0]);
+            console.log(annotations);
+            console.log("Drive on the " + annotations.roadinfo.drive_on);
+            console.log("Timezone: " + annotations.timezone.name);
+            console.log("Currency: " + annotations.currency.name);
+            console.log(currentCountryFeature.properties.iso_a3);
+
+            const table = $('<table></table>');
+            const rows = [
+                `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
+            ];
+            rows.forEach(row => {
+                table.append(row);
+            });
+            $('#newsModalTable').empty().append(table);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('OpenCage error: ' + errorThrown);
+        }
+    });
+}
+
+
+
+// Add driver button to map
 L.easyButton('fa-solid fa-truck-fast', function(btn, map) {
-    fetchCountryInfo();
-    $("#infoModal").modal("show");
+    driverButton();
+    $("#driverModal").modal("show");
 }).addTo(map);
+
+
+function driverButton() {
+    $.ajax({
+        url: "libs/php/infoButton.php",
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            openCageKey,
+            countryIso_a2: currentCountryFeature.properties.iso_a2,
+            countryName: currentCountryFeature.properties.name.trim(),
+            lat: searchLat,
+            long: searchLong
+         },
+        success: function(result) {
+            const annotations = result.results[0].annotations;
+            console.log(result.results[0]);
+            console.log(annotations);
+            console.log("Drive on the " + annotations.roadinfo.drive_on);
+            console.log("Timezone: " + annotations.timezone.name);
+            console.log("Currency: " + annotations.currency.name);
+            console.log(currentCountryFeature.properties.iso_a3);
+
+            const table = $('<table></table>');
+            const rows = [
+                `<tr><td>Driving side:</td><td>${annotations.roadinfo.drive_on}</td></tr>`,
+            ];
+            rows.forEach(row => {
+                table.append(row);
+            });
+            $('#driverModalTable').empty().append(table);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('OpenCage error: ' + errorThrown);
+        }
+    });
+}
