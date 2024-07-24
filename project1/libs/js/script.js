@@ -1,6 +1,9 @@
 import { tomtomKey } from './keys.js';
 import { openCageKey } from './keys.js';
+import { geoNameUsername } from './keys.js';
+import { apiNinjaKey } from './keys.js';
 import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
+
 
 //------------------------------------ Map and Tile Layers -----------------------------------------------------------------------------//
 // Global variables
@@ -187,6 +190,7 @@ L.easyButton('fa-solid fa-circle-info', function(btn, map) {
 // Function to fetch and display country info using OpenCage API
 // this might need preloaderrrrr <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 function infoButton() {
+    $('#infoModalTable').empty()
     $.ajax({
         url: "libs/php/infoButton.php",
         type: 'GET',
@@ -202,9 +206,6 @@ function infoButton() {
             const annotations = result.results[0].annotations;
             console.log(result.results[0]);
             console.log(annotations);
-            console.log("Drive on the " + annotations.roadinfo.drive_on);
-            console.log("Timezone: " + annotations.timezone.name);
-            console.log("Currency: " + annotations.currency.name);
             console.log(currentCountryFeature.properties.iso_a3);
 
             const table = $('<table></table>');
@@ -214,10 +215,37 @@ function infoButton() {
             rows.forEach(row => {
                 table.append(row);
             });
-            $('#infoModalTable').empty().append(table);
+            $('#infoModalTable').append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('OpenCage error: ' + errorThrown);
+        }
+
+        
+    });
+    $.ajax({
+        url: "libs/php/geoName.php",
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            geoNameUsername,
+            countryIso_a2: currentCountryFeature.properties.iso_a2,
+         },
+        success: function(result) {
+            console.log(result);
+            console.log(result.geonames[0].areaInSqKm);
+            let areaInSqKm = Number(result.geonames[0].areaInSqKm).toLocaleString();
+            const table = $('<table></table>');
+            const rows = [
+                `<tr><td>Country size: </td><td> ${areaInSqKm}km<sup>2</sup></td></tr>`,
+            ];
+            rows.forEach(row => {
+                table.append(row);
+            });
+            $('#infoModalTable').append(table);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('geoName error: ' + errorThrown);
         }
     });
 }
@@ -230,28 +258,22 @@ L.easyButton('fa-solid fa-users', function(btn, map) {
 
 function peopleButton() {
     $.ajax({
-        url: "libs/php/infoButton.php",
+        url: "libs/php/geoName.php",
         type: 'GET',
         dataType: 'json',
         data: { 
-            openCageKey,
+            geoNameUsername,
             countryIso_a2: currentCountryFeature.properties.iso_a2,
-            countryName: currentCountryFeature.properties.name.trim(),
-            lat: searchLat,
-            long: searchLong
          },
         success: function(result) {
-            const annotations = result.results[0].annotations;
-            console.log(result.results[0]);
-            console.log(annotations);
-            console.log("Drive on the " + annotations.roadinfo.drive_on);
-            console.log("Timezone: " + annotations.timezone.name);
-            console.log("Currency: " + annotations.currency.name);
-            console.log(currentCountryFeature.properties.iso_a3);
-
+            console.log(result);
+            console.log(result.geonames[0].population);
+            let population = Number(result.geonames[0].population).toLocaleString();
+            let capitalCity = result.geonames[0].capital;
             const table = $('<table></table>');
             const rows = [
-                `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
+                `<tr><td>Current Polulation: </td><td> ${population}</td></tr>`,
+                `<tr><td>Capital city: </td><td>${capitalCity}</td></tr>`,
             ];
             rows.forEach(row => {
                 table.append(row);
@@ -259,9 +281,34 @@ function peopleButton() {
             $('#peopleModalTable').empty().append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            alert('OpenCage error: ' + errorThrown);
+            alert('geoName error: ' + errorThrown);
         }
     });
+
+    // $.ajax({
+    //     url: "libs/php/apiNinja.php",
+    //     type: 'GET',
+    //     dataType: 'json',
+    //     data: { 
+    //         apiNinjaKey,
+    //         countryName: currentCountryFeature.properties.name,
+    //      },
+    //     success: function(result) {
+    //         console.log(result)
+
+    //         const table = $('<table></table>');
+    //         const rows = [
+    //             `<tr><td>Timezone:</td><td></td></tr>`,
+    //         ];
+    //         rows.forEach(row => {
+    //             table.append(row);
+    //         });
+    //         $('#peopleModalTable').empty().append(table);
+    //     },
+    //     error: function(jqXHR, textStatus, errorThrown) {
+    //         alert('geoName error: ' + errorThrown);
+    //     }
+    // });
 }
 
 // Add bank button to map
