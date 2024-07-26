@@ -143,6 +143,7 @@ function showCountryByLatLon(lon, lat) {
     });
 
     if (countryFeature) {
+        $('#selectCountry').val(countryFeature.properties.iso_a3);
         showCountryByISO(countryFeature.properties.iso_a3);
     } else {
         alert('No country found at the given coordinates.');
@@ -372,6 +373,7 @@ function newsButton() {
          },
         success: function(result) {
             const annotations = result.results[0].annotations;
+            var countryName = currentCountryFeature.properties.name
             console.log(result.results[0]);
             console.log(annotations);
             console.log("Drive on the " + annotations.roadinfo.drive_on);
@@ -381,7 +383,9 @@ function newsButton() {
 
             const table = $('<table></table>');
             const rows = [
-                `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
+                `<tr><td>Wiki link: </td><td><a href="https://en.wikipedia.org/wiki/${countryName}" target="_blank">Click me</a></td></tr>`,
+                `<tr><td>News link: </td><td><a href="https://www.google.com/search?q=${countryName}+news&tbm=nws" target="_blank">${countryName} news</a></td></tr>`,
+
             ];
             rows.forEach(row => {
                 table.append(row);

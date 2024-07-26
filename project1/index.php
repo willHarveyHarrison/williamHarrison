@@ -29,46 +29,48 @@
 
 <body>
     <div id="map">
-        <div id="flag">hello</div>
         
-        <form id="countrySelect">
-            <?php
-            // Path to the GeoJSON file
-            $geoJsonFile = './libs/geojson/countryBorders.geo.json';
-    
-            // Check if the file exists
-            if (file_exists($geoJsonFile)) {
-                // Read the GeoJSON file contents
-                $geoJsonData = file_get_contents($geoJsonFile);
-    
-                // Decode the GeoJSON data
-                $data = json_decode($geoJsonData, true);
-    
-                // Check if the data was decoded successfully
-                if ($data !== null) {
-                    // Extract the country names and ISO codes
-                    $options = [];
-                    foreach ($data['features'] as $feature) {
-                        $name = $feature['properties']['name'];
-                        $isoCode = $feature['properties']['iso_a3'];
-                        $options[] = "<option value=\"$isoCode\">$name</option>";
+        
+        <div class="d-flex flex-column flex-lg-row justify-content-center align-items-center mt-5">
+            <div id="flag" class="col-auto"></div>
+            <form id="countrySelect" class="col-auto">
+                <?php
+                // Path to the GeoJSON file
+                $geoJsonFile = './libs/geojson/countryBorders.geo.json';
+        
+                // Check if the file exists
+                if (file_exists($geoJsonFile)) {
+                    // Read the GeoJSON file contents
+                    $geoJsonData = file_get_contents($geoJsonFile);
+        
+                    // Decode the GeoJSON data
+                    $data = json_decode($geoJsonData, true);
+        
+                    // Check if the data was decoded successfully
+                    if ($data !== null) {
+                        // Extract the country names and ISO codes
+                        $options = [];
+                        foreach ($data['features'] as $feature) {
+                            $name = $feature['properties']['name'];
+                            $isoCode = $feature['properties']['iso_a3'];
+                            $options[] = "<option value=\"$isoCode\">$name</option>";
+                        }
+        
+                        // Generate the HTML <select> element
+                        echo '<select name="country" id="selectCountry class="form-select">';
+                        echo implode('', $options);
+                        echo '</select>';
+                    } else {
+                        echo '<p>Error decoding GeoJSON data.</p>';
                     }
-    
-                    // Generate the HTML <select> element
-                    echo '<select name="country">';
-                    echo implode('', $options);
-                    echo '</select>';
                 } else {
-                    echo '<p>Error decoding GeoJSON data.</p>';
+                    echo '<p>GeoJSON file not found.</p>';
                 }
-            } else {
-                echo '<p>GeoJSON file not found.</p>';
-            }
-            ?>
-            <input type="submit" id="submitCountry">
-            
-        </form>
-
+                ?>
+                <input type="submit" id="submitCountry" class="btn btn-primary">
+                
+            </form>
+        </div>
 
         <!-- info modal -->
         <div id="infoModal" class="modal" data-bs-backdrop="false" tabindex="-1">
@@ -136,7 +138,7 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="newsModalTable">
-
+                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
