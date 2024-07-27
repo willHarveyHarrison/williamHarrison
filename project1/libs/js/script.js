@@ -2,6 +2,7 @@ import { tomtomKey } from './keys.js';
 import { openCageKey } from './keys.js';
 import { geoNameUsername } from './keys.js';
 import { apiNinjaKey } from './keys.js';
+import { openWeatherKey } from './keys.js';
 import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
 
 
@@ -35,11 +36,6 @@ streetView.addTo(map);
 
 // Add tile control panel to map
 L.control.layers(baseMaps).addTo(map);
-
-// Function to handle opening the country panel
-function openCountryPanel(countryName) {
-    alert("Opening panel for " + countryName);
-}
 
 //------------------------------------ Functions -----------------------------------------------------------------------------//
 // Function to filter and display the country by ISO code
@@ -109,8 +105,6 @@ function findExtrema(countryFeature) {
     searchLat = (north + south)/2
     searchLong = (west + east)/2
 
-    console.log(searchLat)
-    console.log(searchLong)
 
     map.fitBounds([[south, west], [north, east]]);
 
@@ -167,7 +161,6 @@ $(document).ready(function() {
     $('#countrySelect').on('submit', function(event) {
         event.preventDefault(); // Prevent the form from submitting the traditional way
         const selectedCountryISO = $('select[name="country"]').val();
-        console.log('Selected Country ISO Code:', selectedCountryISO);
 
         const country = countriesGeoJson.features.find(feature => feature.properties.iso_a3 === selectedCountryISO);
 
@@ -205,18 +198,30 @@ function infoButton() {
          },
         success: function(result) {
             const annotations = result.results[0].annotations;
-            console.log(result.results[0]);
-            console.log(annotations);
-            console.log(currentCountryFeature.properties.iso_a3);
-
-            const table = $('<table></table>');
-            const rows = [
-                `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
-            ];
-            rows.forEach(row => {
-                table.append(row);
+            $.ajax({
+                url: "libs/php/geoName.php",
+                type: 'GET',
+                dataType: 'json',
+                data: { 
+                    geoNameUsername,
+                    countryIso_a2: currentCountryFeature.properties.iso_a2,
+                 },
+                success: function(result) {
+                    let areaInSqKm = Number(result.geonames[0].areaInSqKm).toLocaleString();
+                    const table = $('<table></table>');
+                    const rows = [
+                        `<tr><td>Country size: </td><td> ${areaInSqKm}km<sup>2</sup></td></tr>`,
+                        `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
+                    ];
+                    rows.forEach(row => {
+                        table.append(row);
+                    });
+                    $('#infoModalTable').append(table);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('geoName error: ' + errorThrown);
+                }
             });
-            $('#infoModalTable').append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('OpenCage error: ' + errorThrown);
@@ -224,31 +229,7 @@ function infoButton() {
 
         
     });
-    $.ajax({
-        url: "libs/php/geoName.php",
-        type: 'GET',
-        dataType: 'json',
-        data: { 
-            geoNameUsername,
-            countryIso_a2: currentCountryFeature.properties.iso_a2,
-         },
-        success: function(result) {
-            console.log(result);
-            console.log(result.geonames[0].areaInSqKm);
-            let areaInSqKm = Number(result.geonames[0].areaInSqKm).toLocaleString();
-            const table = $('<table></table>');
-            const rows = [
-                `<tr><td>Country size: </td><td> ${areaInSqKm}km<sup>2</sup></td></tr>`,
-            ];
-            rows.forEach(row => {
-                table.append(row);
-            });
-            $('#infoModalTable').append(table);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert('geoName error: ' + errorThrown);
-        }
-    });
+
 }
 
 // Add people button to map
@@ -258,6 +239,7 @@ L.easyButton('fa-solid fa-users', function(btn, map) {
 }).addTo(map);
 
 function peopleButton() {
+    $('#peopleModalTable').empty();
     $.ajax({
         url: "libs/php/geoName.php",
         type: 'GET',
@@ -265,51 +247,43 @@ function peopleButton() {
         data: { 
             geoNameUsername,
             countryIso_a2: currentCountryFeature.properties.iso_a2,
-         },
+        },
         success: function(result) {
-            console.log(result);
-            console.log(result.geonames[0].population);
             let population = Number(result.geonames[0].population).toLocaleString();
             let capitalCity = result.geonames[0].capital;
-            const table = $('<table></table>');
-            const rows = [
-                `<tr><td>Current Polulation: </td><td> ${population}</td></tr>`,
-                `<tr><td>Capital city: </td><td>${capitalCity}</td></tr>`,
-            ];
-            rows.forEach(row => {
-                table.append(row);
+            // Make the second AJAX call using the capitalCity
+            $.ajax({
+                url: "libs/php/openWeather.php", // replace with your actual URL
+                type: 'GET',
+                dataType: 'json',
+                data: { 
+                    capitalCity: capitalCity,
+                    openWeatherKey
+                },
+                success: function(secondResult) {
+                    let weather = secondResult.weather[0].description;
+                    let temp = Math.round(secondResult.main.temp - 273.15);
+                    const table = $('<table></table>');
+                    const rows = [
+                        `<tr><td>Current Population: </td><td>${population}</td></tr>`,
+                        `<tr><td>Capital City: </td><td>${capitalCity}</td></tr>`,
+                        `<tr><td>Capital weather: </td><td>${weather}</td></tr>`,
+                        `<tr><td>Capital temperature: </td><td>${temp} <sup>o</sup>C</td></tr>`,
+                    ];
+                    rows.forEach(row => {
+                        table.append(row);
+                    });
+                    $('#peopleModalTable').append(table);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('Another API error: ' + errorThrown);
+                }
             });
-            $('#peopleModalTable').empty().append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('geoName error: ' + errorThrown);
         }
     });
-
-    // $.ajax({
-    //     url: "libs/php/apiNinja.php",
-    //     type: 'GET',
-    //     dataType: 'json',
-    //     data: { 
-    //         apiNinjaKey,
-    //         countryName: currentCountryFeature.properties.name,
-    //      },
-    //     success: function(result) {
-    //         console.log(result)
-
-    //         const table = $('<table></table>');
-    //         const rows = [
-    //             `<tr><td>Timezone:</td><td></td></tr>`,
-    //         ];
-    //         rows.forEach(row => {
-    //             table.append(row);
-    //         });
-    //         $('#peopleModalTable').empty().append(table);
-    //     },
-    //     error: function(jqXHR, textStatus, errorThrown) {
-    //         alert('geoName error: ' + errorThrown);
-    //     }
-    // });
 }
 
 // Add bank button to map
@@ -319,6 +293,7 @@ L.easyButton('fa-solid fa-landmark', function(btn, map) {
 }).addTo(map);
 
 function bankButton() {
+    $('#bankModalTable').empty()
     $.ajax({
         url: "libs/php/infoButton.php",
         type: 'GET',
@@ -332,10 +307,6 @@ function bankButton() {
          },
         success: function(result) {
             const currency = result.results[0].annotations.currency;
-            console.log(result.results[0]);
-            console.log(currency)
-            console.log(currentCountryFeature.properties.iso_a3);
-
             const table = $('<table></table>');
             const rows = [
                 `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
@@ -344,7 +315,7 @@ function bankButton() {
             rows.forEach(row => {
                 table.append(row);
             });
-            $('#bankModalTable').empty().append(table);
+            $('#bankModalTable').append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('OpenCage error: ' + errorThrown);
@@ -360,42 +331,18 @@ L.easyButton('fa-solid fa-globe', function(btn, map) {
 
 
 function newsButton() {
-    $.ajax({
-        url: "libs/php/infoButton.php",
-        type: 'GET',
-        dataType: 'json',
-        data: { 
-            openCageKey,
-            countryIso_a2: currentCountryFeature.properties.iso_a2,
-            countryName: currentCountryFeature.properties.name.trim(),
-            lat: searchLat,
-            long: searchLong
-         },
-        success: function(result) {
-            const annotations = result.results[0].annotations;
-            var countryName = currentCountryFeature.properties.name
-            console.log(result.results[0]);
-            console.log(annotations);
-            console.log("Drive on the " + annotations.roadinfo.drive_on);
-            console.log("Timezone: " + annotations.timezone.name);
-            console.log("Currency: " + annotations.currency.name);
-            console.log(currentCountryFeature.properties.iso_a3);
+    $('#newsModalTable').empty()
+    var countryName = currentCountryFeature.properties.name
+    const table = $('<table></table>');
+    const rows = [
+        `<tr><td>Wiki link: </td><td><a href="https://en.wikipedia.org/wiki/${countryName}" target="_blank">${countryName} wiki</a></td></tr>`,
+        `<tr><td>News link: </td><td><a href="https://www.google.com/search?q=${countryName}+news&tbm=nws" target="_blank">${countryName} news</a></td></tr>`,
 
-            const table = $('<table></table>');
-            const rows = [
-                `<tr><td>Wiki link: </td><td><a href="https://en.wikipedia.org/wiki/${countryName}" target="_blank">Click me</a></td></tr>`,
-                `<tr><td>News link: </td><td><a href="https://www.google.com/search?q=${countryName}+news&tbm=nws" target="_blank">${countryName} news</a></td></tr>`,
-
-            ];
-            rows.forEach(row => {
-                table.append(row);
-            });
-            $('#newsModalTable').empty().append(table);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert('OpenCage error: ' + errorThrown);
-        }
+    ];
+    rows.forEach(row => {
+        table.append(row);
     });
+    $('#newsModalTable').append(table);
 }
 
 
@@ -408,6 +355,7 @@ L.easyButton('fa-solid fa-truck-fast', function(btn, map) {
 
 
 function driverButton() {
+    $('#driverModalTable').empty()
     $.ajax({
         url: "libs/php/infoButton.php",
         type: 'GET',
@@ -421,13 +369,6 @@ function driverButton() {
          },
         success: function(result) {
             const annotations = result.results[0].annotations;
-            console.log(result.results[0]);
-            console.log(annotations);
-            console.log("Drive on the " + annotations.roadinfo.drive_on);
-            console.log("Timezone: " + annotations.timezone.name);
-            console.log("Currency: " + annotations.currency.name);
-            console.log(currentCountryFeature.properties.iso_a3);
-
             const table = $('<table></table>');
             const rows = [
                 `<tr><td>Driving side:</td><td>${annotations.roadinfo.drive_on}</td></tr>`,
@@ -435,7 +376,7 @@ function driverButton() {
             rows.forEach(row => {
                 table.append(row);
             });
-            $('#driverModalTable').empty().append(table);
+            $('#driverModalTable').append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('OpenCage error: ' + errorThrown);

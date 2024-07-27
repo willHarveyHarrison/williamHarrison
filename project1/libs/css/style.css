@@ -6,16 +6,11 @@
 }
 
 #flag {
-    color: red;
-    font-size: large;
-    z-index: 1000; /* Higher z-index to ensure it is above the map */
-
-
+    z-index: 1000; /* z-index to ensure it is above the map */
 }
 
 #countrySelect {
-    color: red;
     font-size: large;
-    z-index: 1000; /* Higher z-index to ensure it is above the map */
+    z-index: 1000; /* z-index to ensure it is above the map */
 }
 
