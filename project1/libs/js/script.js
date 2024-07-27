@@ -1,7 +1,7 @@
 import { tomtomKey } from './keys.js';
 import { openCageKey } from './keys.js';
 import { geoNameUsername } from './keys.js';
-import { apiNinjaKey } from './keys.js';
+import { openExchangeRatesKey } from './keys.js';
 import { openWeatherKey } from './keys.js';
 import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
 
@@ -307,15 +307,35 @@ function bankButton() {
          },
         success: function(result) {
             const currency = result.results[0].annotations.currency;
-            const table = $('<table></table>');
-            const rows = [
-                `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
-                `<tr><td>Symbol :</td><td>${currency.symbol}</td></tr>`,
-            ];
-            rows.forEach(row => {
-                table.append(row);
+            const currencyCode = result.results[0].annotations.currency.iso_code;
+
+            $.ajax({
+                url: "libs/php/openExchangeRates.php",
+                type: 'GET',
+                dataType: 'json',
+                data: { 
+                    currencyCode,
+                    openExchangeRatesKey,
+                 },
+                success: function(result2) {
+                    const echangeRate =  result2.rates[currencyCode]
+
+
+                    const table = $('<table></table>');
+                    const rows = [
+                        `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
+                        `<tr><td>Symbol :</td><td>${currency.symbol}</td></tr>`,
+                        `<tr><td>Exchange Rate (USD to ${currencyCode}):</td><td>${echangeRate}</td></tr>`
+                    ];
+                    rows.forEach(row => {
+                        table.append(row);
+                    });
+                    $('#bankModalTable').append(table);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('OpenCage error: ' + errorThrown);
+                }
             });
-            $('#bankModalTable').append(table);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('OpenCage error: ' + errorThrown);
