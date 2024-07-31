@@ -4,7 +4,7 @@ import { geoNameUsername } from './keys.js';
 import { openExchangeRatesKey } from './keys.js';
 import { openWeatherKey } from './keys.js';
 import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
-
+import { serpapiKey } from './keys.js';
 
 //------------------------------------ Map and Tile Layers -----------------------------------------------------------------------------//
 // Global variables
@@ -59,7 +59,7 @@ function showCountryByISO(isoCode) {
         onEachFeature: (feature, layer) => {
             layer.on({
                 click: () => {
-                    openCountryPanel(feature.properties.name);
+                    
                 }
             });
         }
@@ -158,7 +158,7 @@ function changeFlag(countryiso2){
 //------------------------ Handle User Input -------------------------------------------------------------------//
 // Handle country selection form submission
 $(document).ready(function() {
-    $('#countrySelect').on('submit', function(event) {
+    $('#countrySelect').on('change', function(event) {
         event.preventDefault(); // Prevent the form from submitting the traditional way
         const selectedCountryISO = $('select[name="country"]').val();
 
@@ -180,6 +180,7 @@ L.easyButton('fa-solid fa-circle-info', function(btn, map) {
     infoButton();
     $("#infoModal").modal("show");
 }).addTo(map);
+
 
 // Function to fetch and display country info using OpenCage API
 // this might need preloaderrrrr <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -207,11 +208,42 @@ function infoButton() {
                     countryIso_a2: currentCountryFeature.properties.iso_a2,
                  },
                 success: function(result) {
+                    let population = Number(result.geonames[0].population).toLocaleString();
+                    let capitalCity = result.geonames[0].capital;
                     let areaInSqKm = Number(result.geonames[0].areaInSqKm).toLocaleString();
+                    let continent = result.geonames[0].continentName
                     const table = $('<table></table>');
                     const rows = [
-                        `<tr><td>Country size: </td><td> ${areaInSqKm}km<sup>2</sup></td></tr>`,
-                        `<tr><td>Timezone:</td><td>${annotations.timezone.name}</td></tr>`,
+                        `<tr>
+                        <td class="text-center"><i class="fa-solid fa-city fa-xl text-success"></i></td>
+                        <td>Capital City: </td>
+                        <td> ${capitalCity}</td>
+                        </tr>`,
+                        `<tr>
+                        <td class="text-center"><i class="fa-solid fa-users fa-xl text-success"></i></td>
+                        <td>Population: </td>
+                        <td> ${population}</td>
+                        </tr>`,
+                        `<tr>
+                        <td class="text-center"><i class="fa-solid fa-mountain fa-xl text-success"></i></td>
+                        <td>Country size: </td>
+                        <td> ${areaInSqKm}km<sup>2</sup></td>
+                        </tr>`,
+                        `<tr>
+                        <td class="text-center"><i class="fa-solid fa-earth-europe fa-xl text-success"></i></td>
+                        <td>Continent:</td>
+                        <td>${continent}</td>
+                        </tr>`,
+                        `<tr>
+                        <td class="text-center"><i class="fa-solid fa-clock fa-xl text-success"></i></td>
+                        <td>Timezone:</td>
+                        <td>${annotations.timezone.name}</td>
+                        </tr>`,
+                        `<tr>
+                        <td class="text-center"><i class="fa-solid fa-truck-fast fa-xl text-success"></i></td>
+                        <td>Driving side:</td>
+                        <td>${annotations.roadinfo.drive_on}</td>
+                        </tr>`,
                     ];
                     rows.forEach(row => {
                         table.append(row);
@@ -232,117 +264,107 @@ function infoButton() {
 
 }
 
-// Add people button to map
-L.easyButton('fa-solid fa-users', function(btn, map) {
-    peopleButton();
-    $("#peopleModal").modal("show");
+// Add wiki button to map
+L.easyButton('fa-solid fa-wikipedia-w', function(btn, map) {
+    wikiButton(currentCountryFeature.properties.name);
+    $("#wikiModal").modal("show");
 }).addTo(map);
 
-function peopleButton() {
-    $('#peopleModalTable').empty();
+function wikiButton(pageTitle) {
     $.ajax({
-        url: "libs/php/geoName.php",
+        url: 'libs/php/wiki.php',
         type: 'GET',
+        data: { title: pageTitle },
         dataType: 'json',
-        data: { 
-            geoNameUsername,
-            countryIso_a2: currentCountryFeature.properties.iso_a2,
+        success: function(data) {
+            console.log(data)
+            var page = Object.values(data.query.pages)[0];
+            if (page && page.extract) {
+                $('#wikiBody').text(page.extract);
+            } else {
+                $('#wikiBody').text('No introduction available.');
+            }
         },
-        success: function(result) {
-            let population = Number(result.geonames[0].population).toLocaleString();
-            let capitalCity = result.geonames[0].capital;
-            // Make the second AJAX call using the capitalCity
-            $.ajax({
-                url: "libs/php/openWeather.php", // replace with your actual URL
-                type: 'GET',
-                dataType: 'json',
-                data: { 
-                    capitalCity: capitalCity,
-                    openWeatherKey
-                },
-                success: function(secondResult) {
-                    let weather = secondResult.weather[0].description;
-                    let temp = Math.round(secondResult.main.temp - 273.15);
-                    const table = $('<table></table>');
-                    const rows = [
-                        `<tr><td>Current Population: </td><td>${population}</td></tr>`,
-                        `<tr><td>Capital City: </td><td>${capitalCity}</td></tr>`,
-                        `<tr><td>Capital weather: </td><td>${weather}</td></tr>`,
-                        `<tr><td>Capital temperature: </td><td>${temp} <sup>o</sup>C</td></tr>`,
-                    ];
-                    rows.forEach(row => {
-                        table.append(row);
-                    });
-                    $('#peopleModalTable').append(table);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert('Another API error: ' + errorThrown);
-                }
-            });
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert('geoName error: ' + errorThrown);
+        error: function() {
+            $('#wikiBody').text('Failed to fetch Wikipedia content.');
         }
     });
 }
 
-// Add bank button to map
-L.easyButton('fa-solid fa-landmark', function(btn, map) {
-    bankButton();
-    $("#bankModal").modal("show");
-}).addTo(map);
+// add bank button and functions to map
+$(document).ready(function() {
+    let exchangeRate = 4;  // Default value or initial rate
+    let currencyCode = ''; // Global variable for currency code
 
-function bankButton() {
-    $('#bankModalTable').empty()
-    $.ajax({
-        url: "libs/php/infoButton.php",
-        type: 'GET',
-        dataType: 'json',
-        data: { 
-            openCageKey,
-            countryIso_a2: currentCountryFeature.properties.iso_a2,
-            countryName: currentCountryFeature.properties.name.trim(),
-            lat: searchLat,
-            long: searchLong
-         },
-        success: function(result) {
-            const currency = result.results[0].annotations.currency;
-            const currencyCode = result.results[0].annotations.currency.iso_code;
-
-            $.ajax({
-                url: "libs/php/openExchangeRates.php",
-                type: 'GET',
-                dataType: 'json',
-                data: { 
-                    currencyCode,
-                    openExchangeRatesKey,
-                 },
-                success: function(result2) {
-                    const echangeRate =  result2.rates[currencyCode]
-
-
-                    const table = $('<table></table>');
-                    const rows = [
-                        `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
-                        `<tr><td>Symbol :</td><td>${currency.symbol}</td></tr>`,
-                        `<tr><td>Exchange Rate (USD to ${currencyCode}):</td><td>${echangeRate}</td></tr>`
-                    ];
-                    rows.forEach(row => {
-                        table.append(row);
-                    });
-                    $('#bankModalTable').append(table);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert('OpenCage error: ' + errorThrown);
-                }
-            });
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert('OpenCage error: ' + errorThrown);
+    function updateConversion() {
+        const dollars = parseFloat($('#dollars').val());
+        if (!isNaN(dollars) && exchangeRate > 0) {
+            $('#conversion').val((dollars * exchangeRate).toFixed(2));
+        } else {
+            $('#conversion').val('');
         }
-    });
-}
+    }
 
+    $('#bankModalTable').on('input', '#dollars', function() {
+        updateConversion();
+    });
+
+    function bankButton() {
+        $('#bankModalTable').empty();
+        $.ajax({
+            url: "libs/php/infoButton.php",
+            type: 'GET',
+            dataType: 'json',
+            data: { 
+                openCageKey,
+                countryIso_a2: currentCountryFeature.properties.iso_a2,
+                countryName: currentCountryFeature.properties.name.trim(),
+                lat: searchLat,
+                long: searchLong
+            },
+            success: function(result) {
+                const currency = result.results[0].annotations.currency;
+                currencyCode = result.results[0].annotations.currency.iso_code; // Store currency code globally
+
+                $.ajax({
+                    url: "libs/php/openExchangeRates.php",
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { 
+                        currencyCode,
+                        openExchangeRatesKey,
+                    },
+                    success: function(result2) {
+                        exchangeRate = result2.rates[currencyCode]; // Update global exchange rate
+
+                        const rows = [
+                            `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
+                            `<tr><td>Symbol :</td><td>${currency.symbol}</td></tr>`,
+                            `<tr><td>Exchange Rate (USD to ${currencyCode}):</td><td>${exchangeRate}</td></tr>`,
+                            `<tr><td><input type="number" id="dollars" class="no-arrows"/></td><td><input type="number" id="conversion" class="no-arrows"/></td></tr>`
+                        ];
+                        rows.forEach(row => {
+                            $('#bankModalTable').append(row);
+                        });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('OpenExchangeRates error: ' + errorThrown);
+                    }
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('OpenCage error: ' + errorThrown);
+            }
+        });
+    }
+
+    // Add bank button to map
+    L.easyButton('fa-solid fa-landmark', function(btn, map) {
+        bankButton();
+        $("#bankModal").modal("show");
+    }).addTo(map);
+
+});
 // Add news button to map
 L.easyButton('fa-solid fa-globe', function(btn, map) {
     newsButton();
@@ -351,55 +373,138 @@ L.easyButton('fa-solid fa-globe', function(btn, map) {
 
 
 function newsButton() {
-    $('#newsModalTable').empty()
-    var countryName = currentCountryFeature.properties.name
-    const table = $('<table></table>');
-    const rows = [
-        `<tr><td>Wiki link: </td><td><a href="https://en.wikipedia.org/wiki/${countryName}" target="_blank">${countryName} wiki</a></td></tr>`,
-        `<tr><td>News link: </td><td><a href="https://www.google.com/search?q=${countryName}+news&tbm=nws" target="_blank">${countryName} news</a></td></tr>`,
+    var storiesContainer = $('#newsModalTable');
+    storiesContainer.empty(); // Clear previous content
 
-    ];
-    rows.forEach(row => {
-        table.append(row);
-    });
-    $('#newsModalTable').append(table);
-}
+    // Optionally, show a loading message or spinner
+    storiesContainer.append('<p>Loading news...</p>');
 
-
-
-// Add driver button to map
-L.easyButton('fa-solid fa-truck-fast', function(btn, map) {
-    driverButton();
-    $("#driverModal").modal("show");
-}).addTo(map);
-
-
-function driverButton() {
-    $('#driverModalTable').empty()
     $.ajax({
-        url: "libs/php/infoButton.php",
+        url: 'libs/php/serpapiApi.php',
         type: 'GET',
-        dataType: 'json',
         data: { 
-            openCageKey,
-            countryIso_a2: currentCountryFeature.properties.iso_a2,
-            countryName: currentCountryFeature.properties.name.trim(),
-            lat: searchLat,
-            long: searchLong
-         },
-        success: function(result) {
-            const annotations = result.results[0].annotations;
-            const table = $('<table></table>');
-            const rows = [
-                `<tr><td>Driving side:</td><td>${annotations.roadinfo.drive_on}</td></tr>`,
-            ];
-            rows.forEach(row => {
-                table.append(row);
-            });
-            $('#driverModalTable').append(table);
+            serpapiKey: serpapiKey, // Ensure this variable is defined
+            countryIso_a2: currentCountryFeature.properties.iso_a2 // Ensure this variable is defined
         },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert('OpenCage error: ' + errorThrown);
+        dataType: 'json',
+        success: function(data) {
+            storiesContainer.empty(); // Clear the loading message
+            
+            if (data && data.news_results && data.news_results.length > 0) {
+                $.each(data.news_results, function(index, story) {
+                    // Log story to debug
+                    console.log('Processing story:', story);
+
+                    // Check if the story object and its properties are defined
+                    if (story && story.link && story.title && story.date && story.thumbnail) {
+                        var storyHtml = `
+                            <div class="story">
+                                <h2><a href="${story.link}" target="_blank">${story.title}</a></h2>
+                                <p>Date: ${story.date}</p>
+                                <a href="${story.link}" target="_blank">
+                                    <img src="${story.thumbnail}" alt="${story.title}">
+                                </a>
+                            </div>
+                        `;
+                        storiesContainer.append(storyHtml);
+                    } else {
+                        console.error('Invalid story object:', story);
+                    }
+                });
+            } else {
+                storiesContainer.text('No news articles found.');
+            }
+        },
+        error: function(xhr, status, error) {
+            storiesContainer.empty(); // Clear the loading message
+            storiesContainer.text('Failed to fetch news content. Error: ' + error);
         }
     });
 }
+
+
+
+// Add weather button to map
+L.easyButton('fa-solid fa-cloud-sun', function(btn, map) {
+    weatherButton();
+    $("#weatherModal").modal("show");
+}).addTo(map);
+
+function weatherButton() {
+    $('#weatherModalTable').empty();
+
+    // Ensure geoNameUsername and openWeatherKey are defined and valid
+    if (typeof geoNameUsername === 'undefined' || typeof openWeatherKey === 'undefined') {
+        alert('API keys are not defined.');
+        return;
+    }
+
+    $.ajax({
+        url: "libs/php/geoName.php",
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            geoNameUsername: geoNameUsername,
+            countryIso_a2: currentCountryFeature.properties.iso_a2,
+            openWeatherKey: openWeatherKey
+        },
+        success: function(result) {
+            if (result.geonames && result.geonames.length > 0) {
+                let capitalCity = result.geonames[0].capital;
+                console.log(result);
+                console.log("Capital city: ", capitalCity);
+
+                // Use a second AJAX call to fetch the city ID for OpenWeatherMap
+                $.ajax({
+                    url: `http://api.openweathermap.org/data/2.5/weather?q=${capitalCity}&appid=${openWeatherKey}`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(weatherResult) {
+                        let cityId = weatherResult.id;
+
+                        // Append the widget container to the table
+                        $('#weatherModalTable').append('<div id="openweathermap-widget-15"></div>');
+                        $('#weatherModalTable').append('<div id="openweathermap-widget-11"></div>')
+                        // Configure the weather widget with the fetched city ID
+                        window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+                        window.myWidgetParam.push({
+                            id: 15,
+                            cityid: cityId,
+                            appid: openWeatherKey,
+                            units: 'metric',
+                            containerid: 'openweathermap-widget-15',
+                        });
+
+                        window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+                        window.myWidgetParam.push({
+                            id: 11,
+                            cityid: cityId,
+                            appid: openWeatherKey,
+                            units: 'metric',
+                            containerid: 'openweathermap-widget-11',
+                        });
+
+                        (function() {
+                            var script = document.createElement('script');
+                            script.async = true;
+                            script.charset = "utf-8";
+                            script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator.js";
+                            var s = document.getElementsByTagName('script')[0];
+                            s.parentNode.insertBefore(script, s);
+                        })();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('OpenWeatherMap error: ' + errorThrown);
+                    }
+                });
+            } else {
+                alert('No geonames data found.');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('geoName error: ' + errorThrown);
+        }
+    });
+}
+
+

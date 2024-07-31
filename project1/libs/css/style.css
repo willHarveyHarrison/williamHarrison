@@ -1,16 +1,40 @@
-
-#map {
+html, body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  #map {
     width: 100%;
     height: 100vh;
-    z-index: 0;
-}
+    margin: 0;
+    padding: 0;
+  }
+  
+  #selectContainer {
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    padding: 11px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #countrySelect {
+    width: 200px;
+    margin: 0 auto;
+  }
 
-#flag {
-    z-index: 1000; /* z-index to ensure it is above the map */
-}
+  #flag {
+    display: inline;
+    padding: 0;
+    margin:0;
+  }
 
-#countrySelect {
-    font-size: large;
-    z-index: 1000; /* z-index to ensure it is above the map */
-}
 
+.no-arrows::-webkit-outer-spin-button,
+.no-arrows::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

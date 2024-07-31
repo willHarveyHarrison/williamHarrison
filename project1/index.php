@@ -25,16 +25,15 @@
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
      crossorigin="anonymous"></script>
+
+    <script src='//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/d3.min.js'></script>
 </head>
 
 <body>
-    <div id="map">
-        
-        
-    <div class="d-flex flex-column flex-lg-row justify-content-center align-items-center mt-5">
-    <div id="flag" class="col-auto mb-3 mb-lg-0"></div>
-    <form id="countrySelect" class="col-auto d-flex flex-column flex-lg-row align-items-center">
-        <?php
+
+<span id="selectContainer">
+<!-- <div id="flag" ></div> -->
+<?php
         // Path to the GeoJSON file
         $geoJsonFile = './libs/geojson/countryBorders.geo.json';
 
@@ -57,7 +56,7 @@
                 }
 
                 // Generate the HTML <select> element
-                echo '<select name="country" id="selectCountry" class="form-select mb-3 mb-lg-0 me-lg-3">';
+                echo '<select name="country" id="countrySelect" class="form-select">';
                 echo implode('', $options);
                 echo '</select>';
             } else {
@@ -67,8 +66,12 @@
             echo '<p>GeoJSON file not found.</p>';
         }
         ?>
-        <input type="submit" id="submitCountry" class="btn btn-primary">
-    </form>
+  </select>
+</span>
+
+    <div id="map">
+
+        
 </div>
 
 
@@ -92,15 +95,15 @@
             </div>
          </div>
 
-        <!-- people modal -->
-        <div id="peopleModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+        <!-- wiki modal -->
+        <div id="wikiModal" class="modal" data-bs-backdrop="false" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content shadow">
                     <div class="modal-header bg-warning bg-gradient text-white">
                         <h5 class="modal-title"></h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="peopleModalTable">
+                    <div class="modal-body" id="wikiBody">
 
                     </div>
                     <div class="modal-footer">
@@ -119,16 +122,18 @@
                         <h5 class="modal-title"></h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="bankModalTable">
-
+                    <div class="modal-body d-flex justify-content-center align-items-center">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                        
                     </div>
+                    <table id="bankModalTable"></table>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
                     </div>
-                    </div>
                 </div>
             </div>
-         </div>
+        </div>
+
 
         <!-- news modal -->
         <div id="newsModal" class="modal" data-bs-backdrop="false" tabindex="-1">
@@ -149,16 +154,16 @@
             </div>
          </div>
 
-        <!-- driver modal -->
-        <div id="driverModal" class="modal" data-bs-backdrop="false" tabindex="-1">
+        <!-- weather modal -->
+        <div id="weatherModal" class="modal" data-bs-backdrop="false" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content shadow">
                     <div class="modal-header bg-danger bg-gradient text-white">
                         <h5 class="modal-title"></h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="driverModalTable">
-
+                    <div class="modal-body" id="weatherModalTable">
+                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
