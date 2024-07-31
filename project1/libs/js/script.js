@@ -402,7 +402,7 @@ function newsButton() {
                                 <h2><a href="${story.link}" target="_blank">${story.title}</a></h2>
                                 <p>Date: ${story.date}</p>
                                 <a href="${story.link}" target="_blank">
-                                    <img src="${story.thumbnail}" alt="${story.title}">
+                                    <img src="${story.thumbnail}" alt="${story.title}" class="news-image">
                                 </a>
                             </div>
                         `;
@@ -464,7 +464,7 @@ function weatherButton() {
 
                         // Append the widget container to the table
                         $('#weatherModalTable').append('<div id="openweathermap-widget-15"></div>');
-                        $('#weatherModalTable').append('<div id="openweathermap-widget-11"></div>')
+                        $('#weatherModalTable').append('<div id="openweathermap-widget-11" class="weather"></div>')
                         // Configure the weather widget with the fetched city ID
                         window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
                         window.myWidgetParam.push({

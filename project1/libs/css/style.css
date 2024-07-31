@@ -38,3 +38,14 @@ html, body {
     -webkit-appearance: none;
     margin: 0;
 }
+
+.story {
+  margin-bottom: 20px;
+}
+
+.news-image {
+  max-width: 100%; /* Ensures the image does not exceed the width of its container */
+  height: auto; /* Maintains aspect ratio */
+  display: block; /* Removes any inline space below the image */
+  border-radius: 8px; /* Optional: adds rounded corners to the image */
+}
