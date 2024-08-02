@@ -64,7 +64,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <div class="modal-header bg-success bg-gradient text-white">
-                <h5 class="modal-title"></h5>
+                <h5 class="modal-title">Country Info</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="infoModalTable"></div>
@@ -80,7 +80,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <div class="modal-header bg-warning bg-gradient text-white">
-                <h5 class="modal-title"></h5>
+                <h5 class="modal-title">Wiki</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="wikiBody"></div>
@@ -96,13 +96,13 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <div class="modal-header bg-secondary bg-gradient text-white">
-                <h5 class="modal-title"></h5>
+                <h5 class="modal-title center-text">Currency Calculator</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body d-flex justify-content-center align-items-center">
-                <i class="fa-solid fa-money-bill-transfer"></i>
+                <img class="fa-solid fa-money-bill-transfer"></img>
             </div>
-            <table id="bankModalTable"></table>
+            <div id="bankModalTable"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Close</button>
             </div>
@@ -115,7 +115,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <div class="modal-header bg-info bg-gradient text-white">
-                <h5 class="modal-title"></h5>
+                <h5 class="modal-title">News</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="newsModalTable"></div>
@@ -131,7 +131,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <div class="modal-header bg-danger bg-gradient text-white">
-                <h5 class="modal-title"></h5>
+                <h5 class="modal-title">Weather</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="weatherModalTable"></div>

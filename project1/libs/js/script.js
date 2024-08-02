@@ -18,11 +18,29 @@ const map = L.map('map').setView([20, 0], 2); // Initial view set globally
 
 // Initialize satellite and street view layers
 const tomtomsatellite = L.tileLayer(`https://api.tomtom.com/map/1/tile/sat/main/{z}/{x}/{y}.jpg?key=${tomtomKey}`, {
+    minZoom: 0,
+	maxZoom: 20,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
 
 const streetView = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    minZoom: 0,
+	maxZoom: 20,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+});
+
+const darkView = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.{ext}', {
+    minZoom: 0,
+	maxZoom: 20,
+	attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    ext: 'png'
+});
+
+const lightView = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.{ext}', {
+	minZoom: 0,
+	maxZoom: 20,
+	attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	ext: 'png'
 });
 
 // Add the default layer to the map
@@ -72,7 +90,9 @@ const bankIcon = L.ExtraMarkers.icon({
 // Define base maps for the control panel
 const baseMaps = {
     "Satellite": tomtomsatellite,
-    "Street": streetView
+    "Street": streetView,
+    "Dark View": darkView,
+    "Light View": lightView
 };
 
 // Define overlay maps for the control panel
@@ -327,7 +347,7 @@ function infoButton() {
                     let capitalCity = result.geonames[0].capital;
                     let areaInSqKm = Number(result.geonames[0].areaInSqKm).toLocaleString();
                     let continent = result.geonames[0].continentName
-                    const table = $('<table></table>');
+                    const table = $('<table class="table"></table>');
                     const rows = [
                         `<tr>
                         <td class="text-center"><i class="fa-solid fa-city fa-xl text-success"></i></td>
@@ -458,7 +478,7 @@ $(document).ready(function() {
                         exchangeRate = result2.rates[currencyCode]; // Update global exchange rate
                         $('#bankModalTable').empty();
 
-                        const table = $('<table class="currencyTable"></table>');
+                        const table = $('<table class="table"></table>');
                         const rows = [
                             `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
                             `<tr><td>Symbol :</td><td>${currency.symbol}</td></tr>`,
@@ -583,7 +603,9 @@ function weatherButton() {
                         let cityId = weatherResult.id;
 
                         // Append the widget container to the table
+                        $('#weatherModalTable').append('<h5>Current Weather</h5>');
                         $('#weatherModalTable').append('<div id="openweathermap-widget-15"></div>');
+                        $('#weatherModalTable').append('<h5>Weather Forecast</h5>');
                         $('#weatherModalTable').append('<div id="openweathermap-widget-11" class="weather"></div>')
                         // Configure the weather widget with the fetched city ID
                         window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
