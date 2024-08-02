@@ -49,3 +49,9 @@ html, body {
   display: block; /* Removes any inline space below the image */
   border-radius: 8px; /* Optional: adds rounded corners to the image */
 }
+
+.currencyTable{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

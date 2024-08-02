@@ -6,7 +6,7 @@ import { openWeatherKey } from './keys.js';
 import { countriesGeoJson } from '../geojson/countryBorders.geo.js';
 import { serpapiKey } from './keys.js';
 
-//------------------------------------ Map and Tile Layers -----------------------------------------------------------------------------//
+//------------------------------------ Map, Tile Layers and markers -----------------------------------------------------------------------------//
 // Global variables
 const DEFAULT_COUNTRY_ISO = 'JPN';
 let currentCountryFeature = null;
@@ -25,18 +25,145 @@ const streetView = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
 
-// Add tile layers to object for control panel
+// Add the default layer to the map
+streetView.addTo(map);
+
+// Create marker clusters with layer support
+const mcgLayerSupportGroup = L.markerClusterGroup.layerSupport();
+
+// Create initial markers for demonstration (can be removed if not needed)
+const markers1 = [];
+const markers2 = [];
+const markers3 = [];
+
+// Create LayerGroups with these markers
+const layerGroup1 = L.layerGroup(markers1);
+const layerGroup2 = L.layerGroup(markers2);
+const layerGroup3 = L.layerGroup(markers3);
+
+// Add LayerGroups to the cluster group
+mcgLayerSupportGroup.checkIn(layerGroup1);
+mcgLayerSupportGroup.checkIn(layerGroup2);
+mcgLayerSupportGroup.checkIn(layerGroup3);
+
+// Add the cluster group to the map
+mcgLayerSupportGroup.addTo(map);
+
+const museumIcon = L.ExtraMarkers.icon({
+    icon: 'fa-ankh', // Use FontAwesome icon
+    markerColor: 'orange', // Background color of the marker
+    shape: 'circle', // Shape of the marker
+    prefix: 'fa' // FontAwesome prefix
+});
+
+const policeIcon = L.ExtraMarkers.icon({
+    icon: 'fa-handcuffs', // Use FontAwesome icon
+    markerColor: 'blue', // Background color of the marker
+    shape: 'penta', // Shape of the marker
+    prefix: 'fa' // FontAwesome prefix
+});
+
+const bankIcon = L.ExtraMarkers.icon({
+    icon: 'fa-sack-dollar', // Use FontAwesome icon
+    markerColor: 'yellow', // Background color of the marker
+    shape: 'square', // Shape of the marker
+    prefix: 'fa' // FontAwesome prefix
+});
+// Define base maps for the control panel
 const baseMaps = {
     "Satellite": tomtomsatellite,
     "Street": streetView
 };
 
-// Add default layer to map
-streetView.addTo(map);
+// Define overlay maps for the control panel
+const overlayMaps = {
+    "Museums": layerGroup1,
+    "Police Stations": layerGroup2,
+    "Bank": layerGroup3
+};
 
-// Add tile control panel to map
-L.control.layers(baseMaps).addTo(map);
+// Add control panel to the map
+L.control.layers(baseMaps, overlayMaps).addTo(map);
 
+// Function to fetch data based on the current bounding box
+function fetchData() {
+    const bounds = map.getBounds();
+    const southWest = bounds.getSouthWest();
+    const northEast = bounds.getNorthEast();
+
+    // Check the bounding box size (diagonal length)
+    const diagonal = map.distance(southWest, northEast);
+    const maxDiagonal = 200000; // Example threshold in meters
+
+    if (diagonal > maxDiagonal) {
+        // Bounding box is too large, skip fetching data
+        layerGroup1.clearLayers();
+        layerGroup2.clearLayers();
+        layerGroup3.clearLayers();
+        return;
+    }
+
+    $.ajax({
+        url: 'libs/php/overpass.php',
+        type: 'GET',
+        data: {
+            southWestLat: southWest.lat,
+            southWestLng: southWest.lng,
+            northEastLat: northEast.lat,
+            northEastLng: northEast.lng
+        },
+        dataType: 'json',
+        success: function(data) {
+            // Clear existing markers
+            layerGroup1.clearLayers();
+            layerGroup2.clearLayers();
+            layerGroup3.clearLayers();
+
+            // Add new markers
+            data.elements.forEach(element => {
+                const lat = element.lat;
+                const lon = element.lon;
+                const coordKey = `${lat},${lon}`;
+
+                let marker;
+                if (element.tags.tourism === 'museum') {
+                    marker = L.marker([lat, lon], { icon: museumIcon }).bindPopup(`
+                                                                                <b>${element.tags.name ? element.tags.name : 'museum'}</b><br>
+                                                                                Latitude: ${element.lat}<br>
+                                                                                Longitude: ${element.lon}
+                                                                                `);
+                    layerGroup1.addLayer(marker);
+                } else if (element.tags.amenity === 'police') {
+                    marker = L.marker([lat, lon], { icon: policeIcon }).bindPopup(`
+                                                                                <b>${element.tags.name ? element.tags.name : 'Police Station'}</b><br>
+                                                                                Latitude: ${element.lat}<br>
+                                                                                Longitude: ${element.lon}
+                                                                                `);
+                    layerGroup2.addLayer(marker);
+                } else if (element.tags.amenity === 'bank') {
+                    marker = L.marker([lat, lon], { icon: bankIcon }).bindPopup(`
+                                                                                <b>${element.tags.name ? element.tags.name : 'bank'}</b><br>
+                                                                                Latitude: ${element.lat}<br>
+                                                                                Longitude: ${element.lon}
+                                                                                `);
+                    layerGroup3.addLayer(marker); 
+                    
+                }
+            });
+
+            mcgLayerSupportGroup.refreshClusters(); // Refresh clusters to reflect changes
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error('Error fetching data:', errorThrown);
+        }
+    });
+}
+
+// Event listener for map movements
+map.on('moveend', fetchData);
+
+// Initial data load
+fetchData();
 //------------------------------------ Functions -----------------------------------------------------------------------------//
 // Function to filter and display the country by ISO code
 function showCountryByISO(isoCode) {
@@ -55,19 +182,9 @@ function showCountryByISO(isoCode) {
     });
 
     // Add the filtered feature to the map
-    L.geoJSON(currentCountryFeature, {
-        onEachFeature: (feature, layer) => {
-            layer.on({
-                click: () => {
-                    
-                }
-            });
-        }
-    }).addTo(map);
-
+    L.geoJSON(currentCountryFeature).addTo(map);
     // Find and fit the extrema for the country
     findExtrema(currentCountryFeature);
-    changeFlag(currentCountryFeature.properties.iso_a2)
 }
 
 // Function to check if a point is inside a polygon
@@ -137,8 +254,9 @@ function showCountryByLatLon(lon, lat) {
     });
 
     if (countryFeature) {
-        $('#selectCountry').val(countryFeature.properties.iso_a3);
+        
         showCountryByISO(countryFeature.properties.iso_a3);
+        
     } else {
         alert('No country found at the given coordinates.');
     }
@@ -149,11 +267,6 @@ function showDefaultCountry() {
     showCountryByISO(DEFAULT_COUNTRY_ISO);
 }
 
-function changeFlag(countryiso2){
-    let flag = [`<img src=https://flagsapi.com/${countryiso2}/flat/64.png></img>`];
-
-    $('#flag').empty().append(flag)
-}
 
 //------------------------ Handle User Input -------------------------------------------------------------------//
 // Handle country selection form submission
@@ -186,6 +299,7 @@ L.easyButton('fa-solid fa-circle-info', function(btn, map) {
 // this might need preloaderrrrr <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 function infoButton() {
     $('#infoModalTable').empty()
+    $('#infoModalTable').append('<p>Loading country info...</p>');
     $.ajax({
         url: "libs/php/infoButton.php",
         type: 'GET',
@@ -208,6 +322,7 @@ function infoButton() {
                     countryIso_a2: currentCountryFeature.properties.iso_a2,
                  },
                 success: function(result) {
+                    $('#infoModalTable').empty()
                     let population = Number(result.geonames[0].population).toLocaleString();
                     let capitalCity = result.geonames[0].capital;
                     let areaInSqKm = Number(result.geonames[0].areaInSqKm).toLocaleString();
@@ -248,6 +363,9 @@ function infoButton() {
                     rows.forEach(row => {
                         table.append(row);
                     });
+                    //set flag
+                    $('#infoModalTable').append(`<img src=https://flagsapi.com/${currentCountryFeature.properties.iso_a2}/flat/64.png class="mx-auto d-block"></img>`);
+                    // append table
                     $('#infoModalTable').append(table);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -271,13 +389,14 @@ L.easyButton('fa-solid fa-wikipedia-w', function(btn, map) {
 }).addTo(map);
 
 function wikiButton(pageTitle) {
+    $("#wikiBody").empty();
+    $("#wikiBody").append('<p>Loading country Wiki ...</p>');
     $.ajax({
         url: 'libs/php/wiki.php',
         type: 'GET',
         data: { title: pageTitle },
         dataType: 'json',
         success: function(data) {
-            console.log(data)
             var page = Object.values(data.query.pages)[0];
             if (page && page.extract) {
                 $('#wikiBody').text(page.extract);
@@ -311,6 +430,7 @@ $(document).ready(function() {
 
     function bankButton() {
         $('#bankModalTable').empty();
+        $('#bankModalTable').append('<p>Loading currency info...</p>');
         $.ajax({
             url: "libs/php/infoButton.php",
             type: 'GET',
@@ -336,7 +456,9 @@ $(document).ready(function() {
                     },
                     success: function(result2) {
                         exchangeRate = result2.rates[currencyCode]; // Update global exchange rate
+                        $('#bankModalTable').empty();
 
+                        const table = $('<table class="currencyTable"></table>');
                         const rows = [
                             `<tr><td>Currency :</td><td>${currency.name}</td></tr>`,
                             `<tr><td>Symbol :</td><td>${currency.symbol}</td></tr>`,
@@ -344,8 +466,9 @@ $(document).ready(function() {
                             `<tr><td><input type="number" id="dollars" class="no-arrows"/></td><td><input type="number" id="conversion" class="no-arrows"/></td></tr>`
                         ];
                         rows.forEach(row => {
-                            $('#bankModalTable').append(row);
+                            $(table).append(row);
                         });
+                        $('#bankModalTable').append(table);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         alert('OpenExchangeRates error: ' + errorThrown);
@@ -376,7 +499,7 @@ function newsButton() {
     var storiesContainer = $('#newsModalTable');
     storiesContainer.empty(); // Clear previous content
 
-    // Optionally, show a loading message or spinner
+    // show a loading message or spinner
     storiesContainer.append('<p>Loading news...</p>');
 
     $.ajax({
@@ -393,7 +516,6 @@ function newsButton() {
             if (data && data.news_results && data.news_results.length > 0) {
                 $.each(data.news_results, function(index, story) {
                     // Log story to debug
-                    console.log('Processing story:', story);
 
                     // Check if the story object and its properties are defined
                     if (story && story.link && story.title && story.date && story.thumbnail) {
@@ -432,8 +554,7 @@ L.easyButton('fa-solid fa-cloud-sun', function(btn, map) {
 
 function weatherButton() {
     $('#weatherModalTable').empty();
-
-    // Ensure geoNameUsername and openWeatherKey are defined and valid
+    $('#weatherModalTable').append('<p>Loading weather...</p>');
     if (typeof geoNameUsername === 'undefined' || typeof openWeatherKey === 'undefined') {
         alert('API keys are not defined.');
         return;
@@ -451,8 +572,6 @@ function weatherButton() {
         success: function(result) {
             if (result.geonames && result.geonames.length > 0) {
                 let capitalCity = result.geonames[0].capital;
-                console.log(result);
-                console.log("Capital city: ", capitalCity);
 
                 // Use a second AJAX call to fetch the city ID for OpenWeatherMap
                 $.ajax({
@@ -460,6 +579,7 @@ function weatherButton() {
                     type: 'GET',
                     dataType: 'json',
                     success: function(weatherResult) {
+                        $('#weatherModalTable').empty();
                         let cityId = weatherResult.id;
 
                         // Append the widget container to the table
@@ -506,5 +626,3 @@ function weatherButton() {
         }
     });
 }
-
-
