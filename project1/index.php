@@ -26,8 +26,8 @@
     <script src="libs/js/leaflet.markercluster.layersupport.js"></script>
 
         
-    <link rel="stylesheet" href="libs\coryasilva-Leaflet.ExtraMarkers-c4f5f1e\dist\css\leaflet.extra-markers.min.css" />
-    <script src="libs/coryasilva-Leaflet.ExtraMarkers-c4f5f1e/dist/js/leaflet.extra-markers.min.js"></script>
+    <link rel="stylesheet" href="libs\coryasilvaLeafletExtraMarkers\dist\css\leaflet.extra-markers.min.css" />
+    <script src="libs/coryasilvaLeafletExtraMarkers/dist/js/leaflet.extra-markers.min.js"></script>
 
 </head>
 <body>
